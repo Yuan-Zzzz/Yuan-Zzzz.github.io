@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head prefix="og: https://ogp.me/ns#">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  
+  <title>委托和事件 - Yuan</title>
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    <link rel='manifest' href='/manifest.json'>
+  
+
+  
+  
+  
+  <meta property="og:title" content="委托和事件 - Yuan" />
+  
+  <meta property="og:type" content="article" />
+  
+  <meta property="og:url" content="https://yuan-zzzz.github.io/2023/09/27/2023-4-27-%E5%A7%94%E6%89%98%E4%B8%8E%E4%BA%8B%E4%BB%B6/index.html" />
+  
+  <meta property="og:image" content="/favicon.png" />
+  
+  <meta property="og:article:published_time" content="2023-09-27T03:04:00.000Z" />
+  
+  <meta property="og:article:author" content="Yuan" />
+  
+  
+
+  
+<link rel="stylesheet" href="/css/var.css">
+
+  
+<link rel="stylesheet" href="/css/main.css">
+
+  
+<link rel="stylesheet" href="/css/typography.css">
+
+  
+<link rel="stylesheet" href="/css/code-highlighting.css">
+
+  
+<link rel="stylesheet" href="/css/components.css">
+
+  
+<link rel="stylesheet" href="/css/nav.css">
+
+  
+<link rel="stylesheet" href="/css/paginator.css">
+
+  
+<link rel="stylesheet" href="/css/footer.css">
+
+  
+<link rel="stylesheet" href="/css/post-list.css">
+
+  
+  
+<link rel="stylesheet" href="/css/rainbow-banner.css">
+
+  
+  
+  
+<link rel="stylesheet" href="/css/toc.css">
+
+  
+  
+  
+  
+  
+<link rel="stylesheet" href="/css/post.css">
+
+  
+  
+  
+  
+  
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+    <body
+        data-color-scheme="auto"
+        data-uppercase-categories="true"
+        
+        data-rainbow-banner="true"
+        data-rainbow-banner-shown="auto"
+        data-rainbow-banner-month="6"
+        data-rainbow-banner-colors="#e50000,#ff8d00,#ffee00,#008121,#004cff,#760188"
+        
+        data-config-root="/"
+        
+        data-toc="true"
+        data-toc-max-depth="2"
+        
+        
+    >
+        <nav id="theme-nav">
+    <div class="inner">
+        <a class="title" href="/">Yuan&#39;s Blog</a>
+        <div class="nav-arrow"></div>
+        <div class="nav-items">
+            <a class="nav-item nav-item-home" href="/">Home</a>
+            
+            
+            <a class="nav-item" href="/archives">Archives</a>
+            
+            
+            
+            <a class="nav-item" href="/friends">Friends</a>
+            
+            
+            
+            <a class="nav-item" href="/projects">Projects</a>
+            
+            
+            
+            <a class="nav-item" href="/about">About</a>
+            
+            
+            
+            <a class="nav-item nav-item-github nav-item-icon" href="https://github.com/MrWillCom" target="_blank" aria-label="GitHub">&nbsp;</a>
+            
+            
+            
+            <a class="nav-item nav-item-codepen nav-item-icon" href="https://codepen.io/mrwillcom" target="_blank" aria-label="CodePen">&nbsp;</a>
+            
+            
+            
+            <a class="nav-item nav-item-patreon nav-item-icon" href="https://www.patreon.com/MrWillCom" target="_blank" aria-label="Patreon">&nbsp;</a>
+            
+            
+            
+            <a class="nav-item nav-item-mastodon nav-item-icon" href="https://noc.social/@MrWillCom" target="_blank" aria-label="Mastodon">&nbsp;</a>
+            
+            
+            
+            <a class="nav-item nav-item-discord nav-item-icon" href="https://discord.gg/UKuFDjcfY8" target="_blank" aria-label="Discord">&nbsp;</a>
+            
+            
+            
+            <a class="nav-item nav-item-search nav-item-icon" href="/search" target="_blank" aria-label="Search">&nbsp;</a>
+            
+            
+        </div>
+    </div>
+</nav>
+        
+<article class="post">
+    <div class="meta">
+        
+        <div class="categories text-uppercase">
+        
+            <a href="/categories/C-学习/">C#学习</a>
+        
+        </div>
+        
+
+        
+        <div class="date" id="date">
+            <span>September</span>
+            <span>27,</span>
+            <span>2023</span>
+        </div>
+        
+
+        <h1 class="title">委托和事件</h1>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="content">
+        <h2 id="委托"><a href="#委托" class="headerlink" title="委托"></a>委托</h2><p><strong>委托类型</strong>是一种类是一个<strong>引用类型</strong>的数据结构，<strong>委托类型的实例</strong>可以存储一个或多个方法的引用，或者说是<strong>封装一个或多个方法</strong>，通过委托实例，可以间接的调用这些封装的方法,但是所存储的方法的参数列表与返回值类型要与对应的委托类型相同，即<strong>类型兼容</strong></p>
+<h3 id="委托的缺点"><a href="#委托的缺点" class="headerlink" title="委托的缺点"></a>委托的缺点</h3><h4 id="人为失误造成重置"><a href="#人为失误造成重置" class="headerlink" title="人为失误造成重置"></a>人为失误造成重置</h4><p>委托很容易因为人为失误造成委托内部封装的所有方法重置，例如</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">myDelegate +=Method1;</span><br><span class="line">myDelegate +=Method2;</span><br><span class="line">myDelegate =Method3;<span class="comment">//此处因为认为失误 将+=写成=，造成委托内部封装的所有方法重置</span></span><br></pre></td></tr></table></figure>
+<h4 id="内存泄漏"><a href="#内存泄漏" class="headerlink" title="内存泄漏"></a>内存泄漏</h4><p>委托会引用一个或多个方法，如果一个方法是<strong>实例的方法</strong>，则一个委托引用这个方法时，这个方法所属的对象必须在内存中是存在的，这个对象的内存一旦被释放，委托就不能间接调用该对象的方法</p>
+<h3 id="Action委托与Func委托"><a href="#Action委托与Func委托" class="headerlink" title="Action委托与Func委托"></a>Action委托与Func委托</h3><p>首先可以知道自定义委托类型，通过关键字<strong>delegate</strong>进行声明，例如</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="built_in">delegate</span> <span class="built_in">string</span> <span class="title">MyDelegate</span>()</span>;</span><br></pre></td></tr></table></figure>
+<p>而C#的类库已经为我们准备好了两种委托，即<strong>Action委托</strong>和<strong>Func委托</strong>（两者都为泛型委托），许多时候我们并不需要使用自定义委托类型，而是直接使用已经定义好的<strong>泛型</strong>的Action委托和Func委托</p>
+<h4 id="不同点"><a href="#不同点" class="headerlink" title="不同点"></a>不同点</h4><p>Action委托无返回值，而Func委托有返回值，两者都有参数列表</p>
+<h2 id="事件"><a href="#事件" class="headerlink" title="事件"></a>事件</h2><p>首先需要明确很重要的一点：<strong>事件不是委托实例！事件不是委托实例！事件不是委托实例！</strong><br>事件是<strong>基于委托</strong>的，是一种类型成员，他只能使用+&#x3D;或者-&#x3D;而不能直接使用&#x3D;，弥补了委托种因为<strong>人为失误造成的重置</strong>问题<br>事件与属性类似，<strong>属性是字段的包装器</strong>，而<strong>事件是委托类型字段的包装器</strong>，作用是隐藏委托实例的大部分内容，仅仅暴露了<strong>添加</strong>和<strong>移除</strong>事件处理器的功能（所以只能使用+&#x3D;或者-&#x3D;而不能直接使用&#x3D;）,从而<strong>保护委托类型的字段</strong>不被外界滥用</p>
+<h3 id="事件的两种声明方式"><a href="#事件的两种声明方式" class="headerlink" title="事件的两种声明方式"></a>事件的两种声明方式</h3><figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="built_in">delegate</span> <span class="keyword">void</span> <span class="title">FooEventHandler</span>(<span class="params"><span class="built_in">object</span> sender,EventArgs e</span>)</span>;<span class="comment">//为OnFoo事件声明委托</span></span><br></pre></td></tr></table></figure>
+<h4 id="完整"><a href="#完整" class="headerlink" title="完整"></a>完整</h4><figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> FooEventHandler fooEventHandler;<span class="comment">//声明委托字段，用来存储事件处理器</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">event</span> FooEventHandler OnFoo&#123;</span><br><span class="line">	<span class="keyword">add</span>&#123;</span><br><span class="line">	fooEventHandler += <span class="keyword">value</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">remove</span>&#123;</span><br><span class="line">	fooEventHandler -= <span class="keyword">value</span>;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h4 id="简略"><a href="#简略" class="headerlink" title="简略"></a>简略</h4><p>事件的简略声明格式会让事件<strong>看起来像</strong>一个用event修饰的委托类型的字段（<strong>FIELD-LIKE</strong>），但并不是一个委托类型的字段！！！并不是一个委托类型的字段！！！并不是一个委托类型的字段！！！</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">event</span> FooEventHandler OnFoo;</span><br></pre></td></tr></table></figure>
+<p>在简化的事件的声明格式中，事件所包装的委托类型的字段由编译器<strong>自动生成</strong>，这样一来，表面上似乎能调用一个事件，但为了调用事件处理程序，实际做的事情是<strong>调用存储在字段中的委托实例</strong></p>
+<h3 id="事件模型"><a href="#事件模型" class="headerlink" title="事件模型"></a>事件模型</h3><ul>
+<li>事件的拥有者</li>
+<li>事件</li>
+<li>事件的响应者(订阅者)</li>
+<li>事件的处理器<br>  即受到约束的方法，方法的参数列表与返回值需要和事件的<strong>委托类型</strong>一致</li>
+<li>事件订阅与注销</li>
+</ul>
+
+    </div>
+
+    
+    <div class="about">
+        <h1>About this Post</h1>
+        <div class="details">
+            <p>This post is written by Yuan, licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc/4.0">CC BY-NC 4.0</a>.</p>
+        </div>
+        
+        <p class="tags">
+            
+            <i class="icon"></i>
+            <a href="/tags/C/" class="tag">#C#</a>
+        </p>
+        
+    </div>
+    
+
+    <div class="container post-prev-next">
+        
+        <a href="/2023/10/13/2023-10-13-%E6%88%91%E5%AF%B9QFramework%E7%9A%84%E6%B5%85%E6%98%BE%E7%90%86%E8%A7%A3/" class="next">
+            <div>
+                <div class="text">
+                    <p class="label">Next</p>
+                    <h3 class="title">我对QFramework的浅显理解</h3>
+                </div>
+            </div>
+        </a>
+        
+        
+        <a href="/2023/07/23/2023-7-23-%E5%8D%8F%E7%A8%8B%E5%8E%9F%E7%90%86%E7%9A%84%E7%AE%80%E5%8D%95%E8%AE%A4%E8%AF%86/" class="prev">
+            <div>
+                <div class="text">
+                    <p class="label">Previous</p>
+                    <h3 class="title">协程原理的简单认识</>
+                </div>
+            </div>
+        </a>
+        
+    </div>
+
+    
+        
+        
+    
+</article>
+
+        <footer>
+    <div class="inner">
+        <div class="links">
+            
+            <div class="group">
+                <h2 class="title">Blog</h2>
+                
+                <a href="/" class="item">Blog</a>
+                
+                <a href="/archives" class="item">Archives</a>
+                
+                <a href="/tags" class="item">Tags</a>
+                
+                <a href="/categories" class="item">Categories</a>
+                
+                <a href="/search" class="item">Search</a>
+                
+                <a href="/friends" class="item">Friends</a>
+                
+                <a href="/projects" class="item">Projects</a>
+                
+                <a href="/resume" class="item">Resume</a>
+                
+                <a href="/about" class="item">About</a>
+                
+            </div>
+            
+            <div class="group">
+                <h2 class="title">Projects</h2>
+                
+            </div>
+            
+            <div class="group">
+                <h2 class="title">Me</h2>
+                
+                <a target="_blank" rel="noopener" href="https://github.com/Yuan-Zzzz" class="item">GitHub</a>
+                
+                <a href="1729726526@qq.com" class="item">Email</a>
+                
+            </div>
+            
+        </div>
+        <span>&copy; 2025 Yuan<br>Powered by <a href="http://hexo.io/" target="_blank">Hexo</a> </span>
+        
+        
+            <br>
+            <div class="color-scheme-toggle" role="radiogroup" id="theme-color-scheme-toggle">
+                <label>
+                    <input type="radio" value="light">
+                    <span>Light</span>
+                </label>
+                <label>
+                    <input type="radio" value="dark">
+                    <span>Dark</span>
+                </label>
+                <label>
+                    <input type="radio" value="auto">
+                    <span>Auto</span>
+                </label>
+            </div>
+        
+    </div>
+</footer>
+
+
+        
+<script src="/js/main.js"></script>
+
+        
+        
+        
+
+        
+        <script src="https://unpkg.com/scrollreveal"></script>
+        <script>
+            window.addEventListener('load', () => {
+                ScrollReveal({ delay: 250, reset: true, easing: 'cubic-bezier(0, 0, 0, 1)' })
+                ScrollReveal().reveal('.post-list-item .cover-img img')
+                ScrollReveal().reveal('.post-list-item, .card, .content p img, .content .block-large img', { distance: '60px', origin: 'bottom', duration: 800 })
+            })
+        </script>
+        
+    </body>
+</html>

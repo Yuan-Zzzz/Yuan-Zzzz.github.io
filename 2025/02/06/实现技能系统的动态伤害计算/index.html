@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head prefix="og: https://ogp.me/ns#">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  
+  <title>实现技能系统的动态伤害计算 - Yuan</title>
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    <link rel='manifest' href='/manifest.json'>
+  
+
+  
+  
+  
+  <meta property="og:title" content="实现技能系统的动态伤害计算 - Yuan" />
+  
+  <meta property="og:type" content="article" />
+  
+  <meta property="og:url" content="https://yuan-zzzz.github.io/2025/02/06/%E5%AE%9E%E7%8E%B0%E6%8A%80%E8%83%BD%E7%B3%BB%E7%BB%9F%E7%9A%84%E5%8A%A8%E6%80%81%E4%BC%A4%E5%AE%B3%E8%AE%A1%E7%AE%97/index.html" />
+  
+  <meta property="og:image" content="/favicon.png" />
+  
+  <meta property="og:article:published_time" content="2025-02-06T03:04:00.000Z" />
+  
+  <meta property="og:article:author" content="Yuan" />
+  
+  
+
+  
+<link rel="stylesheet" href="/css/var.css">
+
+  
+<link rel="stylesheet" href="/css/main.css">
+
+  
+<link rel="stylesheet" href="/css/typography.css">
+
+  
+<link rel="stylesheet" href="/css/code-highlighting.css">
+
+  
+<link rel="stylesheet" href="/css/components.css">
+
+  
+<link rel="stylesheet" href="/css/nav.css">
+
+  
+<link rel="stylesheet" href="/css/paginator.css">
+
+  
+<link rel="stylesheet" href="/css/footer.css">
+
+  
+<link rel="stylesheet" href="/css/post-list.css">
+
+  
+  
+<link rel="stylesheet" href="/css/rainbow-banner.css">
+
+  
+  
+  
+<link rel="stylesheet" href="/css/toc.css">
+
+  
+  
+  
+  
+  
+<link rel="stylesheet" href="/css/post.css">
+
+  
+  
+  
+  
+  
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+    <body
+        data-color-scheme="auto"
+        data-uppercase-categories="true"
+        
+        data-rainbow-banner="true"
+        data-rainbow-banner-shown="auto"
+        data-rainbow-banner-month="6"
+        data-rainbow-banner-colors="#e50000,#ff8d00,#ffee00,#008121,#004cff,#760188"
+        
+        data-config-root="/"
+        
+        data-toc="true"
+        data-toc-max-depth="2"
+        
+        
+    >
+        <nav id="theme-nav">
+    <div class="inner">
+        <a class="title" href="/">Yuan&#39;s Blog</a>
+        <div class="nav-arrow"></div>
+        <div class="nav-items">
+            <a class="nav-item nav-item-home" href="/">Home</a>
+            
+            
+            <a class="nav-item" href="/archives">Archives</a>
+            
+            
+            
+            <a class="nav-item" href="/friends">Friends</a>
+            
+            
+            
+            <a class="nav-item" href="/projects">Projects</a>
+            
+            
+            
+            <a class="nav-item" href="/about">About</a>
+            
+            
+            
+            <a class="nav-item nav-item-github nav-item-icon" href="https://github.com/MrWillCom" target="_blank" aria-label="GitHub">&nbsp;</a>
+            
+            
+            
+            <a class="nav-item nav-item-codepen nav-item-icon" href="https://codepen.io/mrwillcom" target="_blank" aria-label="CodePen">&nbsp;</a>
+            
+            
+            
+            <a class="nav-item nav-item-patreon nav-item-icon" href="https://www.patreon.com/MrWillCom" target="_blank" aria-label="Patreon">&nbsp;</a>
+            
+            
+            
+            <a class="nav-item nav-item-mastodon nav-item-icon" href="https://noc.social/@MrWillCom" target="_blank" aria-label="Mastodon">&nbsp;</a>
+            
+            
+            
+            <a class="nav-item nav-item-discord nav-item-icon" href="https://discord.gg/UKuFDjcfY8" target="_blank" aria-label="Discord">&nbsp;</a>
+            
+            
+            
+            <a class="nav-item nav-item-search nav-item-icon" href="/search" target="_blank" aria-label="Search">&nbsp;</a>
+            
+            
+        </div>
+    </div>
+</nav>
+        
+<article class="post">
+    <div class="meta">
+        
+        <div class="categories text-uppercase">
+        
+            <a href="/categories/Unity学习/">Unity学习</a>
+        
+        </div>
+        
+
+        
+        <div class="date" id="date">
+            <span>February</span>
+            <span>6,</span>
+            <span>2025</span>
+        </div>
+        
+
+        <h1 class="title">实现技能系统的动态伤害计算</h1>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="content">
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>最近在开发一个自走棋+塔防的游戏，游戏玩法的最底层逻辑来自塔对敌人造成伤害，击杀敌人防止敌人移动至终点，游戏中的塔和敌人有各种各样的Buff和技能，在自走棋的玩法下，还存在一个羁绊系统，不同羁绊的数值也会影响技能和Buff的数值，虽然是使用的一个开源的基于UE的GAS思想开发的技能系统，但要在原有的框架下，满足复杂的动态伤害计算还要易于拓展也是极其难的一件事，在看了100万遍GAS相关资料，还跟完了一个Unity的技能系统开发教程，终于是从中有些许启发（当然直接学习UE的GAS是最好的路子，但是对于我UE零基础来说没有更多的时间去折腾了QWQ）</p>
+<blockquote>
+<p>本文只进行了普通的代码和基础的思路展示，目前的动态伤害计算还需要在更多的技能需求中不断迭代</p>
+</blockquote>
+<h1 id="失败的做法"><a href="#失败的做法" class="headerlink" title="失败的做法"></a>失败的做法</h1><p>在<strong>GAS的框架</strong>下，【塔】攻击【敌人】 最简单最直观也最符合直觉的做法就是，【塔】对敌人施加一个【伤害GE】，这个GE的Modifier使用一个AttrbuteBasedMMC获取【塔】的<strong>攻击力</strong>，并作用于【敌人】的<strong>生命值</strong>，完成了基于塔攻击力，对敌人造成伤害的效果</p>
+<p><img src="/2025/02/06/%E5%AE%9E%E7%8E%B0%E6%8A%80%E8%83%BD%E7%B3%BB%E7%BB%9F%E7%9A%84%E5%8A%A8%E6%80%81%E4%BC%A4%E5%AE%B3%E8%AE%A1%E7%AE%97/diagram1.png"></p>
+<p>但当需要实现一个<strong>暴击</strong>的效果怎么做？一个最直接的想法就是在每次<strong>Apply</strong>【伤害GE】时，根据<strong>暴击率</strong>进行判定，判定成功则将塔的攻击力乘以<strong>暴击倍率</strong>，在对敌人施加GE后再恢复原攻击力</p>
+<p>这样做的弊端在于，单一的伤害效果与单位的Attribute相互耦合，当【其他的伤害GE】需要同样的Attribute做计算时，就会被影响，当然不同的伤害GE用不同的攻击力Attribute也是一种办法，但是显然这种方式极其不优雅</p>
+<p>我称这种伤害为特殊伤害效果，暴击是一个简单的例子，简单来讲，暴击是基于概率的，如果有一个技能，会根据目标的某种Buff层数，造成额外伤害，则这是基于Buff的，如果塔存在一个防御值，则对伤害进行减伤，当然还有各种千奇百怪的情况</p>
+<p>并且这种方案在每个需要有特殊伤害效果的地方<strong>Apply</strong>都要在其前后改变Attribute的数值，这种方式显然不妥，在游戏的各种技能越来越多后，多种特殊伤害效果叠加，伤害效果还要进行动态计算时，其维护难度是指数级上升的</p>
+<h1 id="需要解决的问题"><a href="#需要解决的问题" class="headerlink" title="需要解决的问题"></a>需要解决的问题</h1><p>前面一种拍脑袋方案在我开发了七八个Ability和十几个GE后慢慢感受到了不对劲，照这样下去，我将在开发第20个技能的时候，花费一整年的时间开发这个技能，并花大量的时间适配先前开发的一些技能，并修复新出现的几十个Bug（bushi</p>
+<p>动态伤害计算的复杂性主要体现在以下几个方面：</p>
+<ul>
+<li><p><strong>条件判断多样性</strong>：例如暴击率、连击计数、目标Buff层数等</p>
+</li>
+<li><p><strong>效果叠加顺序</strong>：不同伤害效果的叠加顺序可能影响最终结果（如先计算暴击还是先计算护甲减伤）。</p>
+</li>
+<li><p><strong>模块化需求</strong>：每个伤害效果应独立实现，避免相互干扰</p>
+</li>
+<li><p><strong>可配置性</strong>：伤害效果的触发条件和计算逻辑应支持灵活配置，以适应不断变化的游戏需求</p>
+</li>
+</ul>
+<p>重新审视这个问题，一个GE对目标造成的伤害应该是</p>
+<p><strong>最终伤害&#x3D;基础伤害值 + 特殊伤害效果1+ 特殊伤害效果2+ 特殊伤害效果3+ 特殊伤害效果……</strong></p>
+<p>举个例子，当特殊伤害效果是暴击时，那么就需要对暴击进行判定，判定成功则计算暴击值作为一个加权值</p>
+<p>当特殊伤害效果为，当每第五次攻击时，本次攻击造成120%的伤害，那么就计算攻击力Attribute * 0.2作为该效果的加权值</p>
+<p>总结特殊伤害效果就是一个加权值，而一个动态的伤害数值的GE就需要知道特殊伤害效果，能不能加(<strong>条件</strong>)，加多少（<strong>逻辑</strong>）</p>
+<p>对于GE来说，条件可以使用Tag来简单配置，但是显然难以满足像“每第五次攻击”，“当判定暴击”这种需求，而GE作为一个单纯的配置文件，是无法实现很多复杂伤害效果的逻辑的，但我们又不能在应用GE时去做条件判定和逻辑运算（前面说到这种方式的不妥）</p>
+<p>那么我们的需求就在于：使伤害计算有较高的颗粒度，低耦合，伤害计算模块化，可配置</p>
+<h1 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h1><p>我从MMC中得到启发，结合SetByCaller得出目前的解决方案</p>
+<h2 id="Adjustment系统"><a href="#Adjustment系统" class="headerlink" title="Adjustment系统"></a>Adjustment系统</h2><p>这里引入Adjustment的概念，我们称其为调整器系统，作用于GE（就像MMC作用于GE一样）</p>
+<h3 id="x20-核心设计思想"><a href="#x20-核心设计思想" class="headerlink" title="&#x20;核心设计思想"></a>&#x20;<strong>核心设计思想</strong></h3><ul>
+<li><p><strong>双向调整机制</strong>：将调整器分为来源方（攻击者）和目标方（受击者），分别处理加成（如暴击、连击）和减益（如护甲、抗性）</p>
+</li>
+<li><p><strong>条件式触发</strong>：每个 <code>Adjustment</code> 通过 <code>CanApplyAdjustment</code> 实现自定义条件判断（如概率判定、状态检查），只有符合条件的调整才会生效</p>
+</li>
+<li><p><strong>无侵入式修改</strong>：通过直接操作 <code>GameplayEffectSpec</code> 的临时数值，而非修改角色的基础属性，避免了对其他系统的副作用</p>
+</li>
+</ul>
+<p>他是一个简单的抽象类，包含两个方法，这两个方法也就是我们前面说到的<strong>条件</strong>和<strong>逻辑</strong></p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">class</span> <span class="title">GameplayEffectAdjustment</span> : <span class="title">ScriptableObject</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">virtual</span> <span class="built_in">bool</span> <span class="title">CanApplyAdjustment</span>(<span class="params"></span></span></span><br><span class="line"><span class="params"><span class="function">        GameplayEffectSpec effectSpec,</span></span></span><br><span class="line"><span class="params"><span class="function">        AbilitySystemComponent source,</span></span></span><br><span class="line"><span class="params"><span class="function">        AbilitySystemComponent target</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">ApplyAdjustment</span>(<span class="params"></span></span></span><br><span class="line"><span class="params"><span class="function">        GameplayEffectSpec effectSpec,</span></span></span><br><span class="line"><span class="params"><span class="function">        AbilitySystemComponent source,</span></span></span><br><span class="line"><span class="params"><span class="function">        AbilitySystemComponent target</span>)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后在GE的配置处，除了常规的Modifier，Tag，叠层等配置外，新增<strong>目标调整器</strong>和<strong>源调整器</strong>，让设计者可以自由配置</p>
+<p>在AbilitySystemCompoent中声明两个列表用于存储<strong>来源方</strong>和<strong>目标方</strong>的调整器，并在需要应用调整器时，调用一下以下方法</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">TryApplyGameplayEffectAdjustments</span>(<span class="params"></span></span></span><br><span class="line"><span class="params"><span class="function">    GameplayEffectSpec spec,</span></span></span><br><span class="line"><span class="params"><span class="function">    AbilitySystemComponent source,</span></span></span><br><span class="line"><span class="params"><span class="function">    AbilitySystemComponent target</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 处理来源方的调整器</span></span><br><span class="line">    <span class="keyword">foreach</span> (<span class="keyword">var</span> adjPair <span class="keyword">in</span> source.ActiveSourceAdjustments)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">var</span> adjustments = adjPair.Value;</span><br><span class="line">        <span class="keyword">foreach</span> (<span class="keyword">var</span> adjustment <span class="keyword">in</span> adjustments)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span> (adjustment.CanApplyAdjustment(spec, source, target))</span><br><span class="line">            &#123;</span><br><span class="line">                adjustment.ApplyAdjustment(spec, source, target);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 处理目标方的调整器</span></span><br><span class="line">    <span class="keyword">foreach</span> (<span class="keyword">var</span> adjPair <span class="keyword">in</span> target.ActiveTargetAdjustments)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">var</span> adjustments = adjPair.Value;</span><br><span class="line">        <span class="keyword">foreach</span> (<span class="keyword">var</span> adjustment <span class="keyword">in</span> adjustments)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span> (adjustment.CanApplyAdjustment(spec, source, target))</span><br><span class="line">            &#123;</span><br><span class="line">                adjustment.ApplyAdjustment(spec, source, target);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用者只需要继承GameplayEffectAdjustment并实现条件和逻辑的代码，且以一种低耦合的状态存在，并自由配置到任意GE上</p>
+<p>在为任意目标添加该GE时，就会在ACS的对应列表中存储调整器</p>
+<p>下面以一个简单的示意图展示整体的流程</p>
+<p><img src="/2025/02/06/%E5%AE%9E%E7%8E%B0%E6%8A%80%E8%83%BD%E7%B3%BB%E7%BB%9F%E7%9A%84%E5%8A%A8%E6%80%81%E4%BC%A4%E5%AE%B3%E8%AE%A1%E7%AE%97/diagram2.png"></p>
+<h1 id="致谢"><a href="#致谢" class="headerlink" title="致谢"></a>致谢</h1><p>一个UEGAS系统的Unity实现的开源框架，虽然功能还有待完善，但目前的版本给我的开发带来了极大的便利，感谢作者EX-Hard，赞美开源！<br><a target="_blank" rel="noopener" href="https://github.com/No78Vino/gameplay-ability-system-for-unity">https://github.com/No78Vino/gameplay-ability-system-for-unity</a></p>
+
+    </div>
+
+    
+    <div class="about">
+        <h1>About this Post</h1>
+        <div class="details">
+            <p>This post is written by Yuan, licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc/4.0">CC BY-NC 4.0</a>.</p>
+        </div>
+        
+        <p class="tags">
+            
+            <i class="icon"></i>
+            <a href="/tags/Unity/" class="tag">#Unity</a>
+        </p>
+        
+    </div>
+    
+
+    <div class="container post-prev-next">
+        <a class="next"></a>
+        
+        <a href="/2024/12/05/Unity%E6%8A%80%E8%83%BD%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1%E7%90%86%E8%A7%A3/" class="prev">
+            <div>
+                <div class="text">
+                    <p class="label">Previous</p>
+                    <h3 class="title">Unity技能系统设计理解</>
+                </div>
+            </div>
+        </a>
+        
+    </div>
+
+    
+        
+        
+    
+</article>
+
+        <footer>
+    <div class="inner">
+        <div class="links">
+            
+            <div class="group">
+                <h2 class="title">Blog</h2>
+                
+                <a href="/" class="item">Blog</a>
+                
+                <a href="/archives" class="item">Archives</a>
+                
+                <a href="/tags" class="item">Tags</a>
+                
+                <a href="/categories" class="item">Categories</a>
+                
+                <a href="/search" class="item">Search</a>
+                
+                <a href="/friends" class="item">Friends</a>
+                
+                <a href="/projects" class="item">Projects</a>
+                
+                <a href="/resume" class="item">Resume</a>
+                
+                <a href="/about" class="item">About</a>
+                
+            </div>
+            
+            <div class="group">
+                <h2 class="title">Projects</h2>
+                
+            </div>
+            
+            <div class="group">
+                <h2 class="title">Me</h2>
+                
+                <a target="_blank" rel="noopener" href="https://github.com/Yuan-Zzzz" class="item">GitHub</a>
+                
+                <a href="1729726526@qq.com" class="item">Email</a>
+                
+            </div>
+            
+        </div>
+        <span>&copy; 2025 Yuan<br>Powered by <a href="http://hexo.io/" target="_blank">Hexo</a> </span>
+        
+        
+            <br>
+            <div class="color-scheme-toggle" role="radiogroup" id="theme-color-scheme-toggle">
+                <label>
+                    <input type="radio" value="light">
+                    <span>Light</span>
+                </label>
+                <label>
+                    <input type="radio" value="dark">
+                    <span>Dark</span>
+                </label>
+                <label>
+                    <input type="radio" value="auto">
+                    <span>Auto</span>
+                </label>
+            </div>
+        
+    </div>
+</footer>
+
+
+        
+<script src="/js/main.js"></script>
+
+        
+        
+        
+
+        
+        <script src="https://unpkg.com/scrollreveal"></script>
+        <script>
+            window.addEventListener('load', () => {
+                ScrollReveal({ delay: 250, reset: true, easing: 'cubic-bezier(0, 0, 0, 1)' })
+                ScrollReveal().reveal('.post-list-item .cover-img img')
+                ScrollReveal().reveal('.post-list-item, .card, .content p img, .content .block-large img', { distance: '60px', origin: 'bottom', duration: 800 })
+            })
+        </script>
+        
+    </body>
+</html>

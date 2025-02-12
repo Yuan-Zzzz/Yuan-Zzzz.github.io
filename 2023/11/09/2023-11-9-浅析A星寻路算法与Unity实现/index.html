@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head prefix="og: https://ogp.me/ns#">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  
+  <title>浅析A星寻路算法与Unity实现 - Yuan</title>
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    <link rel='manifest' href='/manifest.json'>
+  
+
+  
+  
+  
+  <meta property="og:title" content="浅析A星寻路算法与Unity实现 - Yuan" />
+  
+  <meta property="og:type" content="article" />
+  
+  <meta property="og:url" content="https://yuan-zzzz.github.io/2023/11/09/2023-11-9-%E6%B5%85%E6%9E%90A%E6%98%9F%E5%AF%BB%E8%B7%AF%E7%AE%97%E6%B3%95%E4%B8%8EUnity%E5%AE%9E%E7%8E%B0/index.html" />
+  
+  <meta property="og:image" content="/favicon.png" />
+  
+  <meta property="og:article:published_time" content="2023-11-09T03:04:00.000Z" />
+  
+  <meta property="og:article:author" content="Yuan" />
+  
+  
+
+  
+<link rel="stylesheet" href="/css/var.css">
+
+  
+<link rel="stylesheet" href="/css/main.css">
+
+  
+<link rel="stylesheet" href="/css/typography.css">
+
+  
+<link rel="stylesheet" href="/css/code-highlighting.css">
+
+  
+<link rel="stylesheet" href="/css/components.css">
+
+  
+<link rel="stylesheet" href="/css/nav.css">
+
+  
+<link rel="stylesheet" href="/css/paginator.css">
+
+  
+<link rel="stylesheet" href="/css/footer.css">
+
+  
+<link rel="stylesheet" href="/css/post-list.css">
+
+  
+  
+<link rel="stylesheet" href="/css/rainbow-banner.css">
+
+  
+  
+  
+<link rel="stylesheet" href="/css/toc.css">
+
+  
+  
+  
+  
+  
+<link rel="stylesheet" href="/css/post.css">
+
+  
+  
+  
+  
+  
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+    <body
+        data-color-scheme="auto"
+        data-uppercase-categories="true"
+        
+        data-rainbow-banner="true"
+        data-rainbow-banner-shown="auto"
+        data-rainbow-banner-month="6"
+        data-rainbow-banner-colors="#e50000,#ff8d00,#ffee00,#008121,#004cff,#760188"
+        
+        data-config-root="/"
+        
+        data-toc="true"
+        data-toc-max-depth="2"
+        
+        
+    >
+        <nav id="theme-nav">
+    <div class="inner">
+        <a class="title" href="/">Yuan&#39;s Blog</a>
+        <div class="nav-arrow"></div>
+        <div class="nav-items">
+            <a class="nav-item nav-item-home" href="/">Home</a>
+            
+            
+            <a class="nav-item" href="/archives">Archives</a>
+            
+            
+            
+            <a class="nav-item" href="/friends">Friends</a>
+            
+            
+            
+            <a class="nav-item" href="/projects">Projects</a>
+            
+            
+            
+            <a class="nav-item" href="/about">About</a>
+            
+            
+            
+            <a class="nav-item nav-item-github nav-item-icon" href="https://github.com/MrWillCom" target="_blank" aria-label="GitHub">&nbsp;</a>
+            
+            
+            
+            <a class="nav-item nav-item-codepen nav-item-icon" href="https://codepen.io/mrwillcom" target="_blank" aria-label="CodePen">&nbsp;</a>
+            
+            
+            
+            <a class="nav-item nav-item-patreon nav-item-icon" href="https://www.patreon.com/MrWillCom" target="_blank" aria-label="Patreon">&nbsp;</a>
+            
+            
+            
+            <a class="nav-item nav-item-mastodon nav-item-icon" href="https://noc.social/@MrWillCom" target="_blank" aria-label="Mastodon">&nbsp;</a>
+            
+            
+            
+            <a class="nav-item nav-item-discord nav-item-icon" href="https://discord.gg/UKuFDjcfY8" target="_blank" aria-label="Discord">&nbsp;</a>
+            
+            
+            
+            <a class="nav-item nav-item-search nav-item-icon" href="/search" target="_blank" aria-label="Search">&nbsp;</a>
+            
+            
+        </div>
+    </div>
+</nav>
+        
+<article class="post">
+    <div class="meta">
+        
+        <div class="categories text-uppercase">
+        
+            <a href="/categories/Unity学习/">Unity学习</a>
+        
+        </div>
+        
+
+        
+        <div class="date" id="date">
+            <span>November</span>
+            <span>9,</span>
+            <span>2023</span>
+        </div>
+        
+
+        <h1 class="title">浅析A星寻路算法与Unity实现</h1>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="content">
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>由于目前正在做的项目需要找到最短路径，而说到最短路径，<strong>A星寻路算法</strong>是个最常听到的词，在加上这是面试常问（之前也面试确实问这个了），这里就对A星做个简单总结</p>
+<h2 id="A星寻路算法是用来解决什么问题的"><a href="#A星寻路算法是用来解决什么问题的" class="headerlink" title="A星寻路算法是用来解决什么问题的"></a>A星寻路算法是用来解决什么问题的</h2><p>我们在玩英雄联盟时，通过鼠标右键点击地图上某个点时，玩家操作的英雄就会以<strong>最短路径</strong>，<strong>避开障碍物</strong>，行进至目标点。而A星寻路正是这个用途：<strong>计算玩家或者NPC的行进路径，通过A星寻路算法可以计算出避开障碍物，到达目标点的最短路径</strong></p>
+<h2 id="A星寻路的基本原理"><a href="#A星寻路的基本原理" class="headerlink" title="A星寻路的基本原理"></a>A星寻路的基本原理</h2><p>A星算法基本逻辑是找到可以靠近目标点方向，一步步记录并行进，直到到达目标点，从而找到路径。A星寻路算法是一个基于网格地图来实现寻路的算法，无论是六边形网格还是四边形网格都可以，但是其实在大多数与A星相关的文章中，更多讨论的是<strong>节点</strong>，其原因就在于，如果我们仅仅将我们的寻路区域划分为四边形网格，显然是无法满足在我们游戏开发中的各种需求，我们可能还会将寻路区域划分成六边形，八边形，甚至是任意不规则的图形。而节点可以放在任意多边形的中心，或者放在多边形的顶点或者边上。所以即使我下面将使用简单的四边形网格讲述A星寻路的基本原理，我们依然用节点作为基准，使得我们讨论起这个系统更为简单。</p>
+<h2 id="A星算法的几个基本概念"><a href="#A星算法的几个基本概念" class="headerlink" title="A星算法的几个基本概念"></a>A星算法的几个基本概念</h2><h3 id="寻路消耗公式"><a href="#寻路消耗公式" class="headerlink" title="寻路消耗公式"></a>寻路消耗公式</h3><p>A星算法通过下面这个公式来计算每个节点的优先级</p>
+<p><strong>F(寻路消耗) &#x3D; G(离起点的消耗) + H(离终点的预计消耗)</strong></p>
+<ul>
+<li>F是当前节点的综合优先级。当我们选择下一个要遍历的节点时，我们总会选取综合优先级最高（值最小）的节点。</li>
+<li>G是当前节点距离起点的消耗。</li>
+<li>H是当前节点距离终点的<strong>预计消耗</strong>（预计的原因：忽略了障碍物）</li>
+</ul>
+<p>寻路消耗公式是A星算法的核心</p>
+<h3 id="开启列表和关闭列表"><a href="#开启列表和关闭列表" class="headerlink" title="开启列表和关闭列表"></a>开启列表和关闭列表</h3><p>开启列表和关闭列表是一个容器,用于存储我们的路径节点</p>
+<ul>
+<li>开启列表<br>  开启列表类似一个购物清单，你去到超市可能会买清单上的东西，也可能不买，这个清单只是一个计划。开启列表里面节点可能是最终寻路结果会经过的点，也可能不经过，这是一个待定列表</li>
+<li>关闭列表<br>  放入关闭列表中的节点，在寻路过程中加入过入关闭列表中的节点我们就不会再关注，防止重复搜索</li>
+</ul>
+<h3 id="节点对象的父对象"><a href="#节点对象的父对象" class="headerlink" title="节点对象的父对象"></a>节点对象的父对象</h3><p>在我们的寻路判断结束后，从终点开始，沿着每个节点的父节点至起点(无父节点)<strong>回溯</strong>，这便是寻路的路径</p>
+<h2 id="A星算法的步骤"><a href="#A星算法的步骤" class="headerlink" title="A星算法的步骤"></a>A星算法的步骤</h2><ul>
+<li>寻路初始状态<ul>
+<li>将起点加入开启列表</li>
+</ul>
+</li>
+<li>进入主循环<ul>
+<li>在开启列表中找到F值最低的点作为<strong>当前节点</strong></li>
+<li>获取当前节点周围的八个非关闭节点和非障碍物<strong>邻居节点</strong>，并遍历这些节点<ul>
+<li>判断每个节点如果在开启列表中<ul>
+<li>将当前点设置为该邻居节点的父节点</li>
+<li>计算该邻居节点的G值</li>
+<li>计算该邻居节点的H值</li>
+<li>计算该邻居节点的F值（F &#x3D; G + H）</li>
+<li>将当前节点加入到开放列表中</li>
+</ul>
+</li>
+<li>否则<ul>
+<li>计算邻居节点的G值</li>
+<li>如果G值比该邻居节点的G值小<ul>
+<li>将当前点设置为该邻居节点的父节点</li>
+<li>更新该邻居节点的G值（这里不更改H值是因为H与父节点无关）</li>
+<li>更新该邻居节点的F值</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>当终点在开启列表中时跳出循环</li>
+</ul>
+</li>
+<li>主循环结束，从终点回溯父节点，生成寻路的最终路径</li>
+</ul>
+<h2 id="A星算法的具体实现"><a href="#A星算法的具体实现" class="headerlink" title="A星算法的具体实现"></a>A星算法的具体实现</h2><p>在实现A星算法前，我们需要先实现一个简单的四边形网格节点地图,本文的核心不在网格地图上，所以这里代码就写的不太严谨，仅供参考，包含以下脚本:</p>
+<ul>
+<li>Node类:挂载在每个单个节点脚本</li>
+<li>Map类:负责生成管理各种Node</li>
+</ul>
+<h3 id="网格地图参考代码"><a href="#网格地图参考代码" class="headerlink" title="网格地图参考代码"></a>网格地图参考代码</h3><p><strong>Node类</strong></p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> UnityEngine;  </span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Node</span> : <span class="title">MonoBehaviour</span>  </span><br><span class="line">&#123;  </span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">float</span> h = <span class="number">0</span>; <span class="comment">//离终点估计的距离  </span></span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">float</span> g = <span class="number">0</span>; <span class="comment">//离起点的距离  </span></span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">float</span> f = <span class="number">0</span>; <span class="comment">//寻路消耗  </span></span><br><span class="line">    <span class="keyword">public</span> Node parentNode; <span class="comment">//当前节点的父级节点  </span></span><br><span class="line">    <span class="keyword">private</span> <span class="built_in">bool</span> _isObstacle; <span class="comment">//是否是障碍物  </span></span><br><span class="line">    <span class="keyword">private</span> Map _map;  </span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">bool</span> IsObstacle  </span><br><span class="line">    &#123;  </span><br><span class="line">        <span class="keyword">get</span> =&gt; _isObstacle;  </span><br><span class="line">        <span class="keyword">set</span>  </span><br><span class="line">        &#123;  </span><br><span class="line">            ChangeColor(<span class="keyword">value</span> == <span class="literal">false</span> ? Color.white : Color.red);  </span><br><span class="line">            _isObstacle = <span class="keyword">value</span>;  </span><br><span class="line">        &#125;    &#125;  </span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> MeshRenderer _meshRenderer;  </span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">Awake</span>()</span>  </span><br><span class="line">    &#123;        </span><br><span class="line">	    _meshRenderer = GetComponent&lt;MeshRenderer&gt;();  </span><br><span class="line">        _map = GameObject.FindObjectOfType&lt;Map&gt;();  </span><br><span class="line">    &#125;  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">ChangeColor</span>(<span class="params">Color color</span>)</span>  </span><br><span class="line">    &#123;   </span><br><span class="line">         _meshRenderer.material.color = color;  </span><br><span class="line">    &#125;  </span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">OnMouseDown</span>()</span>  </span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (_map.selectedOption == <span class="number">0</span>&amp;&amp;_map.startNode==<span class="literal">null</span>)  </span><br><span class="line">        &#123;</span><br><span class="line">            _map.startNode = <span class="keyword">this</span>;  </span><br><span class="line">	        ChangeColor(Color.blue);  </span><br><span class="line">        &#125;  </span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span>(_map.selectedOption == <span class="number">1</span>&amp;&amp;_map.endNode==<span class="literal">null</span>)  </span><br><span class="line">        &#123;      </span><br><span class="line">            _map.endNode = <span class="keyword">this</span>;  </span><br><span class="line">            ChangeColor(Color.yellow);  </span><br><span class="line">        &#125;   </span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span>(_map.selectedOption == <span class="number">2</span>)  </span><br><span class="line">        &#123;            </span><br><span class="line">        IsObstacle = !IsObstacle;  </span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Map类</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">using</span> System;  </span><br><span class="line"><span class="keyword">using</span> System.Collections.Generic;  </span><br><span class="line"><span class="keyword">using</span> UnityEngine;  </span><br><span class="line"><span class="keyword">using</span> Random = UnityEngine.Random;  </span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Map</span> : <span class="title">MonoBehaviour</span>  </span><br><span class="line">&#123;  </span><br><span class="line">    <span class="keyword">public</span> GameObject nodePrefab;  </span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> GameObject[,] _nodes;  </span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> GameObject[,] Nodes =&gt; _nodes;  </span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> Vector2Int mapSize;  </span><br><span class="line">    [<span class="meta">Range(0,1)</span>]  </span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">float</span> probability;  </span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Transform _selfTrans;  </span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> Node startNode;  </span><br><span class="line">    <span class="keyword">public</span> Node endNode;  </span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">Awake</span>()</span>  </span><br><span class="line">    &#123;        </span><br><span class="line">	    _selfTrans = transform;  </span><br><span class="line">        CreateMap();  </span><br><span class="line">    &#125;  </span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">Update</span>()</span>  </span><br><span class="line">    &#123;        <span class="comment">//空格刷新地图  </span></span><br><span class="line">        <span class="keyword">if</span> (Input.GetKeyDown(KeyCode.Space))  </span><br><span class="line">        &#123;            </span><br><span class="line">	        CreateMap();  </span><br><span class="line">        &#125;   </span><br><span class="line">     &#125;  </span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">CreateMap</span>()</span>  </span><br><span class="line">    &#123;        </span><br><span class="line">	      ClearMap();  </span><br><span class="line">        _nodes = <span class="keyword">new</span> GameObject[mapSize.x, mapSize.y];  </span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="built_in">int</span> i = <span class="number">0</span>; i &lt; mapSize.x; i++)  </span><br><span class="line">        &#123;            </span><br><span class="line">	        <span class="keyword">for</span> (<span class="built_in">int</span> j = <span class="number">0</span>; j &lt; mapSize.y; j++)  </span><br><span class="line">            &#123;                </span><br><span class="line">	            _nodes[i, j] = Instantiate(nodePrefab, <span class="keyword">new</span> Vector3(i, <span class="number">0</span>, j), Quaternion.identity);  </span><br><span class="line">                _nodes[i, j].transform.SetParent(_selfTrans);  </span><br><span class="line"></span><br><span class="line">                <span class="built_in">float</span> f = Random.Range(<span class="number">0</span>, <span class="number">1.0f</span>);  </span><br><span class="line">                _nodes[i,j].GetComponent&lt;Node&gt;().IsObstacle = f &lt;= probability;  </span><br><span class="line">            &#125;       </span><br><span class="line">        &#125;</span><br><span class="line">    &#125;  </span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">ClearMap</span>()</span>  </span><br><span class="line">    &#123;        </span><br><span class="line">	    <span class="keyword">if</span> (_nodes == <span class="literal">null</span> || _nodes.Length == <span class="number">0</span>) <span class="keyword">return</span>;  </span><br><span class="line"></span><br><span class="line">        startNode = <span class="literal">null</span>;  </span><br><span class="line">        endNode = <span class="literal">null</span>;  </span><br><span class="line">        <span class="keyword">for</span> (<span class="built_in">int</span> i = <span class="number">0</span>; i &lt; mapSize.x; i++)  </span><br><span class="line">        &#123;            </span><br><span class="line">	        <span class="keyword">for</span> (<span class="built_in">int</span> j = <span class="number">0</span>; j &lt; mapSize.y; j++)  </span><br><span class="line">	        &#123;                </span><br><span class="line">	            Destroy(_nodes[i, j].gameObject);  </span><br><span class="line">            &#125;   </span><br><span class="line">        &#125;  </span><br><span class="line">	    Array.Clear(_nodes, <span class="number">0</span>, _nodes.Length);  </span><br><span class="line">    &#125;    </span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">int</span> selectedOption = <span class="number">0</span>; <span class="comment">// 默认选择第一个选项  </span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> List&lt;<span class="built_in">string</span>&gt; _options = <span class="keyword">new</span> List&lt;<span class="built_in">string</span>&gt;()  </span><br><span class="line">    &#123;  </span><br><span class="line">        <span class="string">&quot;设置起点&quot;</span>,<span class="string">&quot;设置终点&quot;</span>,<span class="string">&quot;绘制障碍&quot;</span>  </span><br><span class="line">    &#125;;  </span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">OnGUI</span>()</span>  </span><br><span class="line">    &#123;   GUILayout.BeginArea(<span class="keyword">new</span> Rect(Screen.width <span class="number">-50</span>, <span class="number">0</span>, <span class="number">50</span>, <span class="number">1000</span>)); <span class="comment">// 定义绘制区域在屏幕右上角  </span></span><br><span class="line">        GUILayout.BeginVertical();  </span><br><span class="line"></span><br><span class="line">        GUIStyle buttonStyle = <span class="keyword">new</span> GUIStyle(GUI.skin.button);  </span><br><span class="line">        buttonStyle.fontSize = <span class="number">10</span>;  </span><br><span class="line">        GUIStyle labelStyle = <span class="keyword">new</span> GUIStyle(GUI.skin.label);  </span><br><span class="line">        labelStyle.fontSize = <span class="number">10</span>;  </span><br><span class="line"></span><br><span class="line">        <span class="comment">// 显示选择的选项  </span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="built_in">int</span> i = <span class="number">0</span>; i &lt; _options.Count; i++)  </span><br><span class="line">        &#123;            </span><br><span class="line">		    <span class="built_in">bool</span> isSelected = i == selectedOption;  </span><br><span class="line">            GUI.enabled = !isSelected; <span class="comment">// 禁用当前选中的按钮  </span></span><br><span class="line">            <span class="keyword">if</span> (GUILayout.Toggle(isSelected, _options[i], buttonStyle))  </span><br><span class="line">            &#123;                </span><br><span class="line">	            selectedOption = i;  </span><br><span class="line">            &#125;  </span><br><span class="line">            GUI.enabled = <span class="literal">true</span>;  </span><br><span class="line">        &#125;        </span><br><span class="line">        GUILayout.EndVertical();  </span><br><span class="line">        GUILayout.EndArea();  </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="A星寻路算法代码"><a href="#A星寻路算法代码" class="headerlink" title="A星寻路算法代码"></a>A星寻路算法代码</h3><p>首先声明两个List表示我们的开启列表和关闭列表</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> List&lt;Node&gt; openList;  </span><br><span class="line"><span class="keyword">public</span> List&lt;Node&gt; closeList;</span><br></pre></td></tr></table></figure>
+
+<p>以下是A星的核心算法<br><code>FindPath</code></p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">FindPath</span>(<span class="params">Node startNode, Node endNode</span>)</span>  </span><br><span class="line">&#123;  </span><br><span class="line">    openList.Clear();  </span><br><span class="line">    closeList.Clear();  </span><br><span class="line"></span><br><span class="line">    openList.Add(startNode);  </span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (openList.Count &gt; <span class="number">0</span>)  </span><br><span class="line">    &#123;        </span><br><span class="line">        <span class="keyword">var</span> currentNode = GetMinFNodeInOpenList();</span><br><span class="line">        openList.Remove(currentNode);</span><br><span class="line"></span><br><span class="line">        closeList.Add(currentNode);</span><br><span class="line">        <span class="keyword">if</span> (currentNode == endNode)</span><br><span class="line">        &#123;            </span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;        </span><br><span class="line">        <span class="keyword">foreach</span> (<span class="function"><span class="keyword">var</span> surroundNode <span class="keyword">in</span> <span class="title">GetSurroundNodes</span>(<span class="params">currentNode</span>))</span></span><br><span class="line">        &#123;            </span><br><span class="line">            <span class="keyword">if</span> (surroundNode.IsObstacle || closeList.Contains(surroundNode))  <span class="keyword">continue</span>;  </span><br><span class="line"></span><br><span class="line">            <span class="built_in">float</span> tempG = CalculateG(startNode ,surroundNode);  </span><br><span class="line">            <span class="keyword">if</span> (!openList.Contains(surroundNode))  </span><br><span class="line">            &#123;                </span><br><span class="line">                surroundNode.parentNode = currentNode;  </span><br><span class="line">                surroundNode.g = tempG;  </span><br><span class="line">                surroundNode.h = CalculateH(surroundNode,endNode);  </span><br><span class="line">                surroundNode.f = surroundNode.g + surroundNode.h;  </span><br><span class="line"></span><br><span class="line">                openList.Add(surroundNode);  </span><br><span class="line">            &#125;            </span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span> (tempG &lt; surroundNode.g)  </span><br><span class="line">            &#123;                    </span><br><span class="line">                surroundNode.parentNode = currentNode;  </span><br><span class="line">                surroundNode.g = tempG;  </span><br><span class="line">                surroundNode.f = surroundNode.g + surroundNode.h;  </span><br><span class="line">            &#125;       </span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;    </span><br><span class="line"></span><br><span class="line">    GeneratePath(startNode,endNode);  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="全代码-核心算法全注释"><a href="#全代码-核心算法全注释" class="headerlink" title="全代码(核心算法全注释)"></a>全代码(核心算法全注释)</h4><figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> System.Collections;</span><br><span class="line"><span class="keyword">using</span> System.Collections.Generic;</span><br><span class="line"><span class="keyword">using</span> UnityEngine;</span><br><span class="line"><span class="keyword">using</span> UnityEngine.Serialization;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">AStar</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> List&lt;Node&gt; openList; <span class="comment">//开启列表</span></span><br><span class="line">    <span class="keyword">public</span> List&lt;Node&gt; closeList; <span class="comment">//关闭列表</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> Stack&lt;Node&gt; path; <span class="comment">//最终的路径</span></span><br><span class="line">    <span class="keyword">private</span> Map _map; <span class="comment">//地图</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">//构造函数初始化</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">AStar</span>(<span class="params">Map map</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        openList = <span class="keyword">new</span> List&lt;Node&gt;();</span><br><span class="line">        closeList = <span class="keyword">new</span> List&lt;Node&gt;();</span><br><span class="line">        path = <span class="keyword">new</span> Stack&lt;Node&gt;();</span><br><span class="line">        _map = map;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span></span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> A星寻路核心算法</span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;param name=&quot;startNode&quot;&gt;</span>开始节点<span class="doctag">&lt;/param&gt;</span></span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;param name=&quot;endNode&quot;&gt;</span>结束节点<span class="doctag">&lt;/param&gt;</span></span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">FindPath</span>(<span class="params">Node startNode, Node endNode</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        openList.Clear();</span><br><span class="line">        closeList.Clear();</span><br><span class="line"></span><br><span class="line">        <span class="comment">//将开始节点加入到开启列表中</span></span><br><span class="line">        openList.Add(startNode);</span><br><span class="line">        <span class="comment">//开始寻路</span></span><br><span class="line">        <span class="keyword">while</span> (openList.Count &gt; <span class="number">0</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">//获取寻路消耗最小的节点，作为当前遍历的节点</span></span><br><span class="line">            <span class="keyword">var</span> currentNode = GetMinFNodeInOpenList();</span><br><span class="line">            <span class="comment">//将该节点从开启列表移动到关闭列表</span></span><br><span class="line">            openList.Remove(currentNode);</span><br><span class="line">            closeList.Add(currentNode);</span><br><span class="line"></span><br><span class="line">            <span class="comment">//当遍历到结束节点时，结束寻路</span></span><br><span class="line">            <span class="keyword">if</span> (currentNode == endNode)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">//遍历当前节点的邻居节点</span></span><br><span class="line">            <span class="keyword">foreach</span> (<span class="function"><span class="keyword">var</span> surroundNode <span class="keyword">in</span> <span class="title">GetSurroundNodes</span>(<span class="params">currentNode</span>))</span></span><br><span class="line">            &#123;</span><br><span class="line">                <span class="comment">//忽略障碍物和已在关闭列表的节点</span></span><br><span class="line">                <span class="keyword">if</span> (surroundNode.IsObstacle || closeList.Contains(surroundNode))</span><br><span class="line">                    <span class="keyword">continue</span>;</span><br><span class="line"></span><br><span class="line">                <span class="comment">//计算G消耗</span></span><br><span class="line">                <span class="built_in">float</span> tempG = CalculateG(startNode, surroundNode);</span><br><span class="line">                <span class="comment">//当邻居节点不在开启列表的时候加入开启列表，设置父物体，并计算寻路消耗</span></span><br><span class="line">                <span class="keyword">if</span> (!openList.Contains(surroundNode))</span><br><span class="line">                &#123;</span><br><span class="line">                    surroundNode.parentNode = currentNode;</span><br><span class="line">                    surroundNode.g = tempG;</span><br><span class="line">                    surroundNode.h = CalculateH(surroundNode, endNode);</span><br><span class="line">                    surroundNode.f = surroundNode.g + surroundNode.h;</span><br><span class="line"></span><br><span class="line">                    openList.Add(surroundNode);</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="comment">//当邻居节点存在于开启列表的时候，判断当前G值和之前的G值大小，选择消耗更小的节点</span></span><br><span class="line">                <span class="keyword">else</span> <span class="keyword">if</span> (tempG &lt; surroundNode.g)</span><br><span class="line">                &#123;</span><br><span class="line">                    surroundNode.parentNode = currentNode;</span><br><span class="line">                    surroundNode.g = tempG;</span><br><span class="line">                    surroundNode.f = surroundNode.g + surroundNode.h;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//寻路结束，生成路径</span></span><br><span class="line">        GeneratePath(startNode, endNode);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">GeneratePath</span>(<span class="params">Node startNode, Node endNode</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        path.Clear();</span><br><span class="line">        Node node = endNode;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span> (node.parentNode != <span class="literal">null</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            path.Push(node);</span><br><span class="line">            node = node.parentNode;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">foreach</span> (<span class="keyword">var</span> pathNode <span class="keyword">in</span> path)</span><br><span class="line">        &#123;</span><br><span class="line">            pathNode.ChangeColor(Color.green);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">foreach</span> (<span class="keyword">var</span> pathRoad <span class="keyword">in</span> openList)</span><br><span class="line">        &#123;</span><br><span class="line">            pathRoad.ChangeColor(Color.gray);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">foreach</span> (<span class="keyword">var</span> pathRoad <span class="keyword">in</span> closeList)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span> (!path.Contains(pathRoad))</span><br><span class="line">            &#123;</span><br><span class="line">                pathRoad.ChangeColor(Color.gray);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        startNode.ChangeColor(Color.yellow);</span><br><span class="line">        endNode.ChangeColor(Color.yellow);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="built_in">float</span> <span class="title">CalculateG</span>(<span class="params">Node startNode, Node targetNode</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">float</span> tempG = Vector2.Distance(<span class="keyword">new</span> Vector2(startNode.transform.position.x, startNode.transform.position.z),</span><br><span class="line">            <span class="keyword">new</span> Vector2(targetNode.transform.position.x, targetNode.transform.position.z));</span><br><span class="line">        <span class="built_in">float</span> parentG = targetNode.parentNode == <span class="literal">null</span> ? <span class="number">0</span> : targetNode.parentNode.g;</span><br><span class="line">        <span class="keyword">return</span> tempG + parentG;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="built_in">float</span> <span class="title">CalculateH</span>(<span class="params">Node targetNode, Node endNode</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> Mathf.Abs(endNode.transform.position.x - targetNode.transform.position.x) +</span><br><span class="line">               Mathf.Abs(endNode.transform.position.z - targetNode.transform.position.z);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> List&lt;Node&gt; <span class="title">GetSurroundNodes</span>(<span class="params">Node currentNode</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 定义八个方向的相对坐标</span></span><br><span class="line">        <span class="keyword">var</span> directions = <span class="keyword">new</span> List&lt;Vector2&gt;</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">//new Vector2(1, -1), // 右上</span></span><br><span class="line">            <span class="comment">// new Vector2(-1, -1), // 左上</span></span><br><span class="line">            <span class="comment">//new Vector2(-1, 1), // 左下</span></span><br><span class="line">            <span class="comment">//new Vector2(1, 1) // 右下</span></span><br><span class="line">            <span class="keyword">new</span> Vector2(<span class="number">0</span>, <span class="number">-1</span>), <span class="comment">// 上</span></span><br><span class="line">            <span class="keyword">new</span> Vector2(<span class="number">-1</span>, <span class="number">0</span>), <span class="comment">// 左</span></span><br><span class="line">            <span class="keyword">new</span> Vector2(<span class="number">1</span>, <span class="number">0</span>), <span class="comment">// 右</span></span><br><span class="line">            <span class="keyword">new</span> Vector2(<span class="number">0</span>, <span class="number">1</span>), <span class="comment">// 下</span></span><br><span class="line">        &#125;;</span><br><span class="line"></span><br><span class="line">        List&lt;Node&gt; surroundNodes = <span class="keyword">new</span> List&lt;Node&gt;();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">foreach</span> (Vector2 direction <span class="keyword">in</span> directions)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">var</span> neighborX = currentNode.transform.position.x + direction.x;</span><br><span class="line">            <span class="keyword">var</span> neighborY = currentNode.transform.position.z + direction.y;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (neighborX &gt;= <span class="number">0</span> &amp;&amp; neighborX &lt; _map.mapSize.x &amp;&amp; neighborY &gt;= <span class="number">0</span> &amp;&amp;</span><br><span class="line">                neighborY &lt; _map.mapSize.y)</span><br><span class="line">            &#123;</span><br><span class="line">                Node neighborNode = _map._nodes[(<span class="built_in">int</span>)neighborX, (<span class="built_in">int</span>)neighborY].GetComponent&lt;Node&gt;();</span><br><span class="line">                surroundNodes.Add(neighborNode);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> surroundNodes;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> Node <span class="title">GetMinFNodeInOpenList</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        Node minNode = openList[<span class="number">0</span>];</span><br><span class="line">        <span class="keyword">foreach</span> (Node node <span class="keyword">in</span> openList)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span> (node.f &lt; minNode.f)</span><br><span class="line">            &#123;</span><br><span class="line">                minNode = node;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> minNode;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    <div class="about">
+        <h1>About this Post</h1>
+        <div class="details">
+            <p>This post is written by Yuan, licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc/4.0">CC BY-NC 4.0</a>.</p>
+        </div>
+        
+        <p class="tags">
+            
+            <i class="icon"></i>
+            <a href="/tags/Unity/" class="tag">#Unity</a>
+        </p>
+        
+    </div>
+    
+
+    <div class="container post-prev-next">
+        
+        <a href="/2024/12/05/Unity%E6%8A%80%E8%83%BD%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1%E7%90%86%E8%A7%A3/" class="next">
+            <div>
+                <div class="text">
+                    <p class="label">Next</p>
+                    <h3 class="title">Unity技能系统设计理解</h3>
+                </div>
+            </div>
+        </a>
+        
+        
+        <a href="/2023/10/13/2023-10-13-%E6%88%91%E5%AF%B9QFramework%E7%9A%84%E6%B5%85%E6%98%BE%E7%90%86%E8%A7%A3/" class="prev">
+            <div>
+                <div class="text">
+                    <p class="label">Previous</p>
+                    <h3 class="title">我对QFramework的浅显理解</>
+                </div>
+            </div>
+        </a>
+        
+    </div>
+
+    
+        
+        
+    
+</article>
+
+        <footer>
+    <div class="inner">
+        <div class="links">
+            
+            <div class="group">
+                <h2 class="title">Blog</h2>
+                
+                <a href="/" class="item">Blog</a>
+                
+                <a href="/archives" class="item">Archives</a>
+                
+                <a href="/tags" class="item">Tags</a>
+                
+                <a href="/categories" class="item">Categories</a>
+                
+                <a href="/search" class="item">Search</a>
+                
+                <a href="/friends" class="item">Friends</a>
+                
+                <a href="/projects" class="item">Projects</a>
+                
+                <a href="/resume" class="item">Resume</a>
+                
+                <a href="/about" class="item">About</a>
+                
+            </div>
+            
+            <div class="group">
+                <h2 class="title">Projects</h2>
+                
+            </div>
+            
+            <div class="group">
+                <h2 class="title">Me</h2>
+                
+                <a target="_blank" rel="noopener" href="https://github.com/Yuan-Zzzz" class="item">GitHub</a>
+                
+                <a href="1729726526@qq.com" class="item">Email</a>
+                
+            </div>
+            
+        </div>
+        <span>&copy; 2025 Yuan<br>Powered by <a href="http://hexo.io/" target="_blank">Hexo</a> </span>
+        
+        
+            <br>
+            <div class="color-scheme-toggle" role="radiogroup" id="theme-color-scheme-toggle">
+                <label>
+                    <input type="radio" value="light">
+                    <span>Light</span>
+                </label>
+                <label>
+                    <input type="radio" value="dark">
+                    <span>Dark</span>
+                </label>
+                <label>
+                    <input type="radio" value="auto">
+                    <span>Auto</span>
+                </label>
+            </div>
+        
+    </div>
+</footer>
+
+
+        
+<script src="/js/main.js"></script>
+
+        
+        
+        
+
+        
+        <script src="https://unpkg.com/scrollreveal"></script>
+        <script>
+            window.addEventListener('load', () => {
+                ScrollReveal({ delay: 250, reset: true, easing: 'cubic-bezier(0, 0, 0, 1)' })
+                ScrollReveal().reveal('.post-list-item .cover-img img')
+                ScrollReveal().reveal('.post-list-item, .card, .content p img, .content .block-large img', { distance: '60px', origin: 'bottom', duration: 800 })
+            })
+        </script>
+        
+    </body>
+</html>

@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head prefix="og: https://ogp.me/ns#">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  
+  <title>我对QFramework的浅显理解 - Yuan</title>
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    <link rel='manifest' href='/manifest.json'>
+  
+
+  
+  
+  
+  <meta property="og:title" content="我对QFramework的浅显理解 - Yuan" />
+  
+  <meta property="og:type" content="article" />
+  
+  <meta property="og:url" content="https://yuan-zzzz.github.io/2023/10/13/2023-10-13-%E6%88%91%E5%AF%B9QFramework%E7%9A%84%E6%B5%85%E6%98%BE%E7%90%86%E8%A7%A3/index.html" />
+  
+  <meta property="og:image" content="/favicon.png" />
+  
+  <meta property="og:article:published_time" content="2023-10-13T03:04:00.000Z" />
+  
+  <meta property="og:article:author" content="Yuan" />
+  
+  
+
+  
+<link rel="stylesheet" href="/css/var.css">
+
+  
+<link rel="stylesheet" href="/css/main.css">
+
+  
+<link rel="stylesheet" href="/css/typography.css">
+
+  
+<link rel="stylesheet" href="/css/code-highlighting.css">
+
+  
+<link rel="stylesheet" href="/css/components.css">
+
+  
+<link rel="stylesheet" href="/css/nav.css">
+
+  
+<link rel="stylesheet" href="/css/paginator.css">
+
+  
+<link rel="stylesheet" href="/css/footer.css">
+
+  
+<link rel="stylesheet" href="/css/post-list.css">
+
+  
+  
+<link rel="stylesheet" href="/css/rainbow-banner.css">
+
+  
+  
+  
+<link rel="stylesheet" href="/css/toc.css">
+
+  
+  
+  
+  
+  
+<link rel="stylesheet" href="/css/post.css">
+
+  
+  
+  
+  
+  
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+    <body
+        data-color-scheme="auto"
+        data-uppercase-categories="true"
+        
+        data-rainbow-banner="true"
+        data-rainbow-banner-shown="auto"
+        data-rainbow-banner-month="6"
+        data-rainbow-banner-colors="#e50000,#ff8d00,#ffee00,#008121,#004cff,#760188"
+        
+        data-config-root="/"
+        
+        data-toc="true"
+        data-toc-max-depth="2"
+        
+        
+    >
+        <nav id="theme-nav">
+    <div class="inner">
+        <a class="title" href="/">Yuan&#39;s Blog</a>
+        <div class="nav-arrow"></div>
+        <div class="nav-items">
+            <a class="nav-item nav-item-home" href="/">Home</a>
+            
+            
+            <a class="nav-item" href="/archives">Archives</a>
+            
+            
+            
+            <a class="nav-item" href="/friends">Friends</a>
+            
+            
+            
+            <a class="nav-item" href="/projects">Projects</a>
+            
+            
+            
+            <a class="nav-item" href="/about">About</a>
+            
+            
+            
+            <a class="nav-item nav-item-github nav-item-icon" href="https://github.com/MrWillCom" target="_blank" aria-label="GitHub">&nbsp;</a>
+            
+            
+            
+            <a class="nav-item nav-item-codepen nav-item-icon" href="https://codepen.io/mrwillcom" target="_blank" aria-label="CodePen">&nbsp;</a>
+            
+            
+            
+            <a class="nav-item nav-item-patreon nav-item-icon" href="https://www.patreon.com/MrWillCom" target="_blank" aria-label="Patreon">&nbsp;</a>
+            
+            
+            
+            <a class="nav-item nav-item-mastodon nav-item-icon" href="https://noc.social/@MrWillCom" target="_blank" aria-label="Mastodon">&nbsp;</a>
+            
+            
+            
+            <a class="nav-item nav-item-discord nav-item-icon" href="https://discord.gg/UKuFDjcfY8" target="_blank" aria-label="Discord">&nbsp;</a>
+            
+            
+            
+            <a class="nav-item nav-item-search nav-item-icon" href="/search" target="_blank" aria-label="Search">&nbsp;</a>
+            
+            
+        </div>
+    </div>
+</nav>
+        
+<article class="post">
+    <div class="meta">
+        
+        <div class="categories text-uppercase">
+        
+            <a href="/categories/Unity学习/">Unity学习</a>
+        
+        </div>
+        
+
+        
+        <div class="date" id="date">
+            <span>October</span>
+            <span>13,</span>
+            <span>2023</span>
+        </div>
+        
+
+        <h1 class="title">我对QFramework的浅显理解</h1>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="content">
+        <p>在使用并学习了一段时间QFramework后，有了一定的认知，这里分享一些我自己目前对QFramework的一些认识和总结（不一定正确，欢迎指正）。</p>
+<p>QFramework是一套分层的架构，何为分层？在我早期学习并制作Unity项目的时候，尝试使用<code>Manager Of Managers</code>的思路架构游戏程序，即一个Manager管理所有其他的Manager，每个Manager分别负责游戏各个模块的逻辑，例如SaveManager，InventoryManager，DialogueManger，UIManager，SceneManager，EventManager等，并将Manager设计为单例模式，将表现，逻辑和数据都写在里面，然后使用一个BaseManager统一管理这些Manager，我与团队的其他成员各自负责每个Manager的逻辑。最开始用来效果似乎还不错，但到项目越写越复杂的时候，会发现项目越来越难以维护。因为所有Manager几乎都在相互引用，在脑海里想像会让人感觉是在AnimatorController里面许多个动画相互连接的“蜘蛛网困境”，更要命的是，你有时候要实现自己所负责的Manager的一个功能时，需要改动其他人所负责的代码，因此在git合并时也常常造成冲突。</p>
+<p><code>Manager Of Managers</code>是架构吗？我认为是的，他将每个大功能大系统分开，设计为单例，又由一个中心统一管理，但这样的架构是松散的，他缺少限制导致其陷入“蜘蛛网困境”。QFramework引入分层的设计解决了这个问题，他将其系统架构分为四层：</p>
+<p><code>摘自QFramework的Github主页</code></p>
+<ul>
+<li>表现层：ViewController层。IController接口，负责接收输入和状态变化时的表现，一般情况下，MonoBehaviour 均为表现层<ul>
+<li>可以获取System</li>
+<li>可以获取Model</li>
+<li>可以发送Command</li>
+<li>可以监听Event</li>
+</ul>
+</li>
+<li>系统层：System层。ISystem接口，帮助IController承担一部分逻辑，在多个表现层共享的逻辑，比如计时系统、商城系统、成就系统等<ul>
+<li>可以获取System</li>
+<li>可以获取Model</li>
+<li>可以监听Event</li>
+<li>可以发送Event</li>
+</ul>
+</li>
+<li>数据层：Model层。IModel接口，负责数据的定义、数据的增删查改方法的提供<ul>
+<li>可以获取Utility</li>
+<li>可以发送Event</li>
+</ul>
+</li>
+<li>工具层：Utility层。IUtility接口，负责提供基础设施，比如存储方法、序列化方法、网络连接方法、蓝牙方法、SDK、框架继承等。啥都干不了，可以集成第三方库，或者封装API</li>
+<li>除了四个层级，还有一个核心概念——Command<ul>
+<li>可以获取System</li>
+<li>可以获取Model</li>
+<li>可以发送Event</li>
+<li>可以发送Command</li>
+</ul>
+</li>
+<li>层级规则：<ul>
+<li>IController 更改 ISystem、IModel 的状态必须用Command</li>
+<li>ISystem、IModel状态发生变更后通知IController必须用事件或BindableProperty</li>
+<li>IController可以获取ISystem、IModel对象来进行数据查询</li>
+<li>ICommand不能有状态</li>
+<li>上层可以直接获取下层，下层不能获取上层对象</li>
+<li>下层向上层通信用事件</li>
+<li>上层向下层通信用方法调用（只是做查询，状态变更用Command），IController的交互逻辑为特别情况，只能用Command</li>
+</ul>
+</li>
+</ul>
+<p>有了分层，我们就可以根据QFramework规则将我们散落到各处的Manager们有序的组织起来，我们可以将InventoryManager,DialogueManager,UIManager的逻辑写成InventorySystem，DialogueSystem，UISystem放在系统层，将相关的数据（如背包的数据，对话的数据）放在数据层，SaveSystemr负责数据的存储，放在工具层，而具体的表现的实现则放在表现层</p>
+<p>QFramework里先实现了一个简单的IOC容器，仅仅能注册为单例，每次获取都为同一个实例，并用一个字典来维护.<br>QF中的代码:</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">IOCContainer</span></span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">private</span> Dictionary&lt;Type, <span class="built_in">object</span>&gt; mInstances = <span class="keyword">new</span> Dictionary&lt;Type, <span class="built_in">object</span>&gt;();</span><br><span class="line"></span><br><span class="line">		<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Register</span>&lt;<span class="title">T</span>&gt;(<span class="params">T instance</span>)</span></span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">var</span> key = <span class="keyword">typeof</span>(T);</span><br><span class="line"></span><br><span class="line">			<span class="keyword">if</span> (mInstances.ContainsKey(key))</span><br><span class="line">			&#123;</span><br><span class="line">				mInstances[key] = instance;</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">else</span></span><br><span class="line">			&#123;</span><br><span class="line">				mInstances.Add(key, instance);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="function"><span class="keyword">public</span> T <span class="title">Get</span>&lt;<span class="title">T</span>&gt;() <span class="keyword">where</span> T : <span class="keyword">class</span></span></span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">var</span> key = <span class="keyword">typeof</span>(T);</span><br><span class="line"></span><br><span class="line">			<span class="keyword">if</span> (mInstances.TryGetValue(key, <span class="keyword">out</span> <span class="keyword">var</span> retInstance))</span><br><span class="line">			&#123;</span><br><span class="line">				<span class="keyword">return</span> retInstance <span class="keyword">as</span> T;</span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">			<span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+<p>然后给每个层都定义一个接口（<code>IController</code> <code>ISystem</code> <code>IModel</code> <code>IUtility</code>）在Architecture类中创建IOCContainer对象，分别定义每个层的注入和获取方法（例如<code>RegisterSystem&lt;T&gt;()</code>和<code>GetSystem&lt;T&gt;</code>）通过对应的方法，将对应层的实例注入到IOCContainer中</p>
+<p>使用QFramework时，我们需要定义一个架构类，让其继承的<code>Architecture&lt;T&gt;</code>类（类中声明了一个IOCContainer对象），一个游戏项目一般只需要一个Architecture，这便是我们的<strong>架构</strong>。我们的所有System Model Utility都需要在架构初始化时进行注入，反之我们在获取也需要先获取<strong>架构</strong>，从架构中获取对应的实例（QFramework定义了一个 IBelongToArchitecture接口，实现静态拓展使得我们可以很方便的使用this关键字获取Architecture）</p>
+<p>接下来我们就可以使用Register注入实例，用Get获取实例。这样看来，好像只是把很多个单例放入了一个容器里面，似乎跟直接使用一堆Manager并没有区别，是的，因为我们还没有进行<strong>限制</strong></p>
+<p>我们可以写一个文档，整个项目分成哪些层，给每个层设定对应的规则，就像上文QFramework的主页写的各个层级的规则一样，让团队成员根据文档去遵守，这样我们就用<strong>文档架构</strong>的形式去规范整个程序，但是人是会犯错的，指不定团队里某个人就因为粗心没有遵守这样的规则，给项目埋下隐患，这样的软性限制肯定是不行的。程序是严谨的，我们需要使用程序去限制各个层之间的关系</p>
+<p>前面我们说到了<code>QFramework定义了IBelongToArchitecture和ICanSetArchitecture接口，实现静态拓展使得我们可以很方便的使用this关键字获取Architecture</code>,同样QFramework使用静态拓展的方法实现了对各个层级在程序上的<strong>硬限制</strong>，我们以<code>ICanGetModel</code>接口为例</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">   <span class="keyword">public</span> <span class="keyword">interface</span> <span class="title">ICanGetModel</span> : <span class="title">IBelongToArchitecture</span></span><br><span class="line">&#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title">CanGetModelExtension</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> T <span class="title">GetModel</span>&lt;<span class="title">T</span>&gt;(<span class="params"><span class="keyword">this</span> ICanGetModel self</span>) <span class="keyword">where</span> T : <span class="keyword">class</span>, IModel</span> =&gt;</span><br><span class="line">		self.GetArchitecture().GetModel&lt;T&gt;();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们可以看到，<code>ICanGetModel</code>接口继承了<code>IBelongToArchitecture</code>接口，该接口有一个<code>GetArchitecture()</code>方法使得该实现该接口的类可以获取Architecture，根据静态方法，我们就可以在实现ICanGetModel接口的类中，使用this关键字获取Model，而没有实现ICanGetModel的话，就不能使用，这样，就形成了<strong>限制</strong>。同理，其他层级也是类似的原理。这样我们在各个层级对应的接口中，就可以通过实现对应的<strong>规则接口</strong>(Rules)，来打到限制，例如</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title">ISystem</span> : <span class="title">IBelongToArchitecture</span>, <span class="title">ICanSetArchitecture</span>, <span class="title">ICanGetModel</span>, <span class="title">ICanGetUtility</span>,</span><br><span class="line">		<span class="title">ICanRegisterEvent</span>, <span class="title">ICanSendEvent</span>, <span class="title">ICanGetSystem</span></span><br><span class="line">	&#123;</span><br><span class="line">		<span class="function"><span class="keyword">void</span> <span class="title">Init</span>()</span>;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+<p>这样，就实现了系统层<br>    - 可以获取System<br>    - 可以获取Model<br>    - 可以监听Event<br>    - 可以发送Event<br>从而形成了限制，达到了程序成面上真正的分层</p>
+<p>接下来，QFramework使用BindableProperty，TypeEvent，EasyEvent实现MVC，用Command分担ViewControler的逻辑等其他附加的功能，最终构成了QFramework的核心架构，此外QFramework还提供了可以脱离核心架构的常用的工具集，例如UIKit，AudioKit，ActionKit等，使得在开发游戏时使用QFramework会更加简便</p>
+
+    </div>
+
+    
+    <div class="about">
+        <h1>About this Post</h1>
+        <div class="details">
+            <p>This post is written by Yuan, licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc/4.0">CC BY-NC 4.0</a>.</p>
+        </div>
+        
+        <p class="tags">
+            
+            <i class="icon"></i>
+            <a href="/tags/Unity/" class="tag">#Unity</a>
+        </p>
+        
+    </div>
+    
+
+    <div class="container post-prev-next">
+        
+        <a href="/2023/11/09/2023-11-9-%E6%B5%85%E6%9E%90A%E6%98%9F%E5%AF%BB%E8%B7%AF%E7%AE%97%E6%B3%95%E4%B8%8EUnity%E5%AE%9E%E7%8E%B0/" class="next">
+            <div>
+                <div class="text">
+                    <p class="label">Next</p>
+                    <h3 class="title">浅析A星寻路算法与Unity实现</h3>
+                </div>
+            </div>
+        </a>
+        
+        
+        <a href="/2023/09/27/2023-4-27-%E5%A7%94%E6%89%98%E4%B8%8E%E4%BA%8B%E4%BB%B6/" class="prev">
+            <div>
+                <div class="text">
+                    <p class="label">Previous</p>
+                    <h3 class="title">委托和事件</>
+                </div>
+            </div>
+        </a>
+        
+    </div>
+
+    
+        
+        
+    
+</article>
+
+        <footer>
+    <div class="inner">
+        <div class="links">
+            
+            <div class="group">
+                <h2 class="title">Blog</h2>
+                
+                <a href="/" class="item">Blog</a>
+                
+                <a href="/archives" class="item">Archives</a>
+                
+                <a href="/tags" class="item">Tags</a>
+                
+                <a href="/categories" class="item">Categories</a>
+                
+                <a href="/search" class="item">Search</a>
+                
+                <a href="/friends" class="item">Friends</a>
+                
+                <a href="/projects" class="item">Projects</a>
+                
+                <a href="/resume" class="item">Resume</a>
+                
+                <a href="/about" class="item">About</a>
+                
+            </div>
+            
+            <div class="group">
+                <h2 class="title">Projects</h2>
+                
+            </div>
+            
+            <div class="group">
+                <h2 class="title">Me</h2>
+                
+                <a target="_blank" rel="noopener" href="https://github.com/Yuan-Zzzz" class="item">GitHub</a>
+                
+                <a href="1729726526@qq.com" class="item">Email</a>
+                
+            </div>
+            
+        </div>
+        <span>&copy; 2025 Yuan<br>Powered by <a href="http://hexo.io/" target="_blank">Hexo</a> </span>
+        
+        
+            <br>
+            <div class="color-scheme-toggle" role="radiogroup" id="theme-color-scheme-toggle">
+                <label>
+                    <input type="radio" value="light">
+                    <span>Light</span>
+                </label>
+                <label>
+                    <input type="radio" value="dark">
+                    <span>Dark</span>
+                </label>
+                <label>
+                    <input type="radio" value="auto">
+                    <span>Auto</span>
+                </label>
+            </div>
+        
+    </div>
+</footer>
+
+
+        
+<script src="/js/main.js"></script>
+
+        
+        
+        
+
+        
+        <script src="https://unpkg.com/scrollreveal"></script>
+        <script>
+            window.addEventListener('load', () => {
+                ScrollReveal({ delay: 250, reset: true, easing: 'cubic-bezier(0, 0, 0, 1)' })
+                ScrollReveal().reveal('.post-list-item .cover-img img')
+                ScrollReveal().reveal('.post-list-item, .card, .content p img, .content .block-large img', { distance: '60px', origin: 'bottom', duration: 800 })
+            })
+        </script>
+        
+    </body>
+</html>

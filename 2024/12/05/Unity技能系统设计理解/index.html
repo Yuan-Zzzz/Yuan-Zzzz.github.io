@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head prefix="og: https://ogp.me/ns#">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  
+  <title>Unity技能系统设计理解 - Yuan</title>
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    <link rel='manifest' href='/manifest.json'>
+  
+
+  
+  
+  
+  <meta property="og:title" content="Unity技能系统设计理解 - Yuan" />
+  
+  <meta property="og:type" content="article" />
+  
+  <meta property="og:url" content="https://yuan-zzzz.github.io/2024/12/05/Unity%E6%8A%80%E8%83%BD%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1%E7%90%86%E8%A7%A3/index.html" />
+  
+  <meta property="og:image" content="/favicon.png" />
+  
+  <meta property="og:article:published_time" content="2024-12-05T03:04:00.000Z" />
+  
+  <meta property="og:article:author" content="Yuan" />
+  
+  
+
+  
+<link rel="stylesheet" href="/css/var.css">
+
+  
+<link rel="stylesheet" href="/css/main.css">
+
+  
+<link rel="stylesheet" href="/css/typography.css">
+
+  
+<link rel="stylesheet" href="/css/code-highlighting.css">
+
+  
+<link rel="stylesheet" href="/css/components.css">
+
+  
+<link rel="stylesheet" href="/css/nav.css">
+
+  
+<link rel="stylesheet" href="/css/paginator.css">
+
+  
+<link rel="stylesheet" href="/css/footer.css">
+
+  
+<link rel="stylesheet" href="/css/post-list.css">
+
+  
+  
+<link rel="stylesheet" href="/css/rainbow-banner.css">
+
+  
+  
+  
+<link rel="stylesheet" href="/css/toc.css">
+
+  
+  
+  
+  
+  
+<link rel="stylesheet" href="/css/post.css">
+
+  
+  
+  
+  
+  
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+    <body
+        data-color-scheme="auto"
+        data-uppercase-categories="true"
+        
+        data-rainbow-banner="true"
+        data-rainbow-banner-shown="auto"
+        data-rainbow-banner-month="6"
+        data-rainbow-banner-colors="#e50000,#ff8d00,#ffee00,#008121,#004cff,#760188"
+        
+        data-config-root="/"
+        
+        data-toc="true"
+        data-toc-max-depth="2"
+        
+        
+    >
+        <nav id="theme-nav">
+    <div class="inner">
+        <a class="title" href="/">Yuan&#39;s Blog</a>
+        <div class="nav-arrow"></div>
+        <div class="nav-items">
+            <a class="nav-item nav-item-home" href="/">Home</a>
+            
+            
+            <a class="nav-item" href="/archives">Archives</a>
+            
+            
+            
+            <a class="nav-item" href="/friends">Friends</a>
+            
+            
+            
+            <a class="nav-item" href="/projects">Projects</a>
+            
+            
+            
+            <a class="nav-item" href="/about">About</a>
+            
+            
+            
+            <a class="nav-item nav-item-github nav-item-icon" href="https://github.com/MrWillCom" target="_blank" aria-label="GitHub">&nbsp;</a>
+            
+            
+            
+            <a class="nav-item nav-item-codepen nav-item-icon" href="https://codepen.io/mrwillcom" target="_blank" aria-label="CodePen">&nbsp;</a>
+            
+            
+            
+            <a class="nav-item nav-item-patreon nav-item-icon" href="https://www.patreon.com/MrWillCom" target="_blank" aria-label="Patreon">&nbsp;</a>
+            
+            
+            
+            <a class="nav-item nav-item-mastodon nav-item-icon" href="https://noc.social/@MrWillCom" target="_blank" aria-label="Mastodon">&nbsp;</a>
+            
+            
+            
+            <a class="nav-item nav-item-discord nav-item-icon" href="https://discord.gg/UKuFDjcfY8" target="_blank" aria-label="Discord">&nbsp;</a>
+            
+            
+            
+            <a class="nav-item nav-item-search nav-item-icon" href="/search" target="_blank" aria-label="Search">&nbsp;</a>
+            
+            
+        </div>
+    </div>
+</nav>
+        
+<article class="post">
+    <div class="meta">
+        
+        <div class="categories text-uppercase">
+        
+            <a href="/categories/Unity学习/">Unity学习</a>
+        
+        </div>
+        
+
+        
+        <div class="date" id="date">
+            <span>December</span>
+            <span>5,</span>
+            <span>2024</span>
+        </div>
+        
+
+        <h1 class="title">Unity技能系统设计理解</h1>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="content">
+        <h1 id="GAS框架"><a href="#GAS框架" class="headerlink" title="GAS框架"></a>GAS框架</h1><h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>GameplayAbilitySystem（简称GAS）是由UE发布的一个插件，以下是官方文档的解释</p>
+<blockquote>
+<p>GameplayAbilitySystem是一个高度灵活的框架，可用于构建你可能会在RPG或MOBA游戏中看到的技能和属性类型。你可以构建可供游戏中的角色使用的动作或被动技能，使这些动作导致各种属性累积或损耗的状态效果，实现约束这些动作使用的”冷却”计时器或资源消耗，更改技能等级及每个技能等级的技能效果，激活粒子或音效，等等。简单来说，此系统可帮助你在任何现代RPG或MOBA游戏中设计、实现及高效关联各种游戏中的技能，既包括跳跃等简单技能，也包括你喜欢的角色的复杂技能集。</p>
+</blockquote>
+<p>其包含以下几个核心概念：</p>
+<ul>
+<li><p>AbilitySystemComponent</p>
+</li>
+<li><p>GameplayTag</p>
+</li>
+<li><p>GameplayEffect</p>
+</li>
+<li><p>GameplayAbility</p>
+</li>
+<li><p>GameplayCue</p>
+</li>
+</ul>
+<p><img src="/2024/12/05/Unity%E6%8A%80%E8%83%BD%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1%E7%90%86%E8%A7%A3/diagram-1.png"></p>
+<p><strong>GAS的运行逻辑</strong></p>
+<p><img src="/2024/12/05/Unity%E6%8A%80%E8%83%BD%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1%E7%90%86%E8%A7%A3/image-6.png" alt="源自EX-GAS文档"></p>
+<hr>
+<h2 id="AbilitySystemComponent"><a href="#AbilitySystemComponent" class="headerlink" title="AbilitySystemComponent"></a>AbilitySystemComponent</h2><p>AbilitySystemComponent（简称ASC）是GAS运行的基本单位，是GAS执行大多数事情的起源，他可以代表一个角色，敌人，Boss等一切<strong>实体</strong></p>
+<p><img src="/2024/12/05/Unity%E6%8A%80%E8%83%BD%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1%E7%90%86%E8%A7%A3/image-7.png" alt="来自Gasify的Wiki文档"></p>
+<p><strong>Attributes，Tags，GameplayEffects，GameplayAbility</strong>都应用于ASC，也就是说ASC持有这些东西的<strong>容器，以下是EX-GAS和GASify的ASC的源码</strong></p>
+<p><img src="/2024/12/05/Unity%E6%8A%80%E8%83%BD%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1%E7%90%86%E8%A7%A3/image-8.png" alt="EX-GAS的ASC源码"></p>
+<p><img src="/2024/12/05/Unity%E6%8A%80%E8%83%BD%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1%E7%90%86%E8%A7%A3/image-9.png" alt="GASify的ASC源码"></p>
+<hr>
+<h2 id="GameplayTag"><a href="#GameplayTag" class="headerlink" title="GameplayTag"></a>GameplayTag</h2><p>GameplayTag用于分类和描述对象的状态，以下是EX-GAS的解释：</p>
+<blockquote>
+<ul>
+<li><p>Gameplay Tag以树形层级结构（如Parent.Child.Grandchild）组织，用于描述角色状态&#x2F;事件&#x2F;属性&#x2F;等，如眩晕（State.Debuff.Stun）。</p>
+</li>
+<li><p>Gameplay Tag主要用于替代布尔值或枚举值，进行逻辑判断。</p>
+</li>
+<li><p>通常将Gameplay Tag添加到AbilitySystemComponent（ASC）以与系统（GameplayEffect，GameplayCue,Ability）交互。</p>
+</li>
+</ul>
+</blockquote>
+<p>Tag的目的就是简化传统的布尔值判断，可以用于简单的状态描述，以及处理复杂的技能效果交互</p>
+<p>以英雄联盟举例，<strong>一个被“击晕”的角色</strong>可以被分配一个“<strong>State.Debuff.Stun</strong>”的游戏标签来代表它的当前状态</p>
+<p>或者当我们玩亚索残血被追击时，被寒冰攻击到（<strong>减速Buff</strong>），然后被提莫攻击到（<strong>中毒Buff</strong>），我们使用<strong>净化</strong>解除这些效果并成功逃生，净化的效果是：<strong>移除身上的所有限制效果和召唤师技能的减益效果</strong>，我们把这些减益效果和限制效果都称作<strong>Debuff，</strong>&#x90A3;么整个过程就非常的简单</p>
+<p><img src="/2024/12/05/Unity%E6%8A%80%E8%83%BD%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1%E7%90%86%E8%A7%A3/diagram.png"></p>
+<p>传统的做法，我们需要让<strong>减速类</strong>和<strong>中毒类</strong>都实现<strong>Debuff接口</strong>，然后判断实体是否持有实现了Debuff接口的对象并一一将他们删除，但是这属于具体的实现，可能会在代码中写下大量的if-else的判断，如果还有更多复杂的效果，更是增加了代码的复杂度，而GameplayTag就解决了这个问题，我只需要为减速效果和中毒效果添加Tag（中毒:Debuff.Poison，减速:Debuff.SpeedDown），具体的判断逻辑则是写在GAS框架内部，开发者不需要编写额外的实现</p>
+<p>不过需要注意的是，在<strong>项目初期</strong>，设计师就应该对Tag进行大致分类以及设计，并在后期尽可能做到<strong>只增添，不修改，不删除</strong></p>
+<p>以下是一些其他的Tag的例子：</p>
+<blockquote>
+<p>Enemy.Boss”, “Weapon.Ranged”, “Environment.Underwater”, “Status.Poisoned”,”State.Jump”</p>
+</blockquote>
+<hr>
+<h2 id="Attribute"><a href="#Attribute" class="headerlink" title="Attribute"></a>Attribute</h2><p>Attribute用于描述游戏中的各种核心数据，称作属性，例如生命值，魔法值，耐久值，攻击力，速度等等等</p>
+<p>一个Attribute存在两个值</p>
+<ul>
+<li><p><strong>BaseValue 永久值</strong></p>
+</li>
+<li><p><strong>CurrentValue 当前值</strong></p>
+</li>
+</ul>
+<p>其中的关系为<strong>CurrentValue &#x3D; BaseValue + GameplayEffect</strong></p>
+<p>例如英雄联盟的<strong>治疗术</strong>直接（InstantGameplayEffect）更改血量的<strong>BaseValue</strong></p>
+<p>而<strong>疾跑</strong>则是修改CurrentValue（DurationGameplayEffect），在持续时间结束后，恢复为原来的速度，比如说英雄的基础速度（BaseValue）为500，使用疾跑后获得<strong>持续</strong>5秒的<strong>加速GameplayEffect</strong>，加速的值为50，</p>
+<p>那么</p>
+<p><strong>CurrentValue &#x3D; 500（BaseValue） + 50（GameplayEffect） &#x3D; 550</strong></p>
+<p>并在五秒后变回500</p>
+<p>在这里会有一个误区就是会误将BaseValue当作其Attribute的最大值，对于可以变更的最大值或最小值应该单独定义一个Attribute，例如已经定义了一个生命值（Hp）的属性，如果有一些效果需要获取到最大生命值（例如一些治疗效果：恢复最大生命值的30%或者UI上要根据当前生命值和最大生命值的比例来显示生命值），这个时候就需要单独定义一个Attribute（MaxHp）</p>
+<p>Attribute还有一个重要的概念叫做AttributeSet（属性集)，它是属性的集合，一个ASC可能有一个或多个AttributeSet，例如有以下属性</p>
+<ul>
+<li><p>生命值</p>
+</li>
+<li><p>速度</p>
+</li>
+</ul>
+<p>那么我们就可以定义一个<strong>人物</strong>的属性集，其包含生命值和速度，然后我们定义一个可以被破坏的<strong>石头</strong>，其属性集就只包含生命值这一个属性而不需要速度这个属性</p>
+<p><strong>属性集的设计可以比较随意，但是更推荐一个单位只有一个属性集</strong></p>
+<hr>
+<h2 id="GameplayEffect"><a href="#GameplayEffect" class="headerlink" title="GameplayEffect"></a>GameplayEffect</h2><p>GAS的一切数值交互都基于GameplayEffect，简单来说就是一切Attribute的变化都基于GameplayEffect，虽然在代码中可以手动修改属性的值，但并不推荐这样做，避免数值体系混乱，难以追踪问题产生 ，更推荐尽可能<strong>只使用</strong>GameplayEffect对数值进行修改</p>
+<p>GameplayEffect存在以下三种类型：</p>
+<table>
+<thead>
+<tr>
+<th>瞬发型</th>
+<th>Instant</th>
+<th>对Attribute中的BaseValue进行永久性修改</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>持续型</td>
+<td>Duration</td>
+<td>对Attribute中CurrentValue进行临时修改，持续一定后自动移除修改</td>
+</tr>
+<tr>
+<td>无限型</td>
+<td>Infinite</td>
+<td>对Attribute中CurrentValue进行临时修改，需要手动移除</td>
+</tr>
+</tbody></table>
+<h3 id="Modifier"><a href="#Modifier" class="headerlink" title="Modifier"></a>Modifier</h3><p>Modifier是一个重要的概念，存储在GameplayEffect中，负责GameplayEffect的数值计算逻辑，简而言之包含三种信息：<strong>改谁，怎么改，改多少</strong></p>
+<p>Modifier包含了<strong>修改的属性，幅值，操作类型，MMC</strong></p>
+<ul>
+<li><p><strong>修改的属性</strong>：指的是GameplayEffect作用对象被修改的属性</p>
+</li>
+<li><p><strong>幅值Magnitude</strong>：修改器的基础数值</p>
+</li>
+<li><p><strong>操作类型</strong>：是对属性的操作类型，加减乘除覆盖</p>
+</li>
+<li><p><strong>MMC</strong>：计算单位，Modifier的核心</p>
+</li>
+</ul>
+<p>简单来说，就是向MMC中输入一个数值，MMC可以返回一个数值，并根据操作类型作用于需要修改的属性上，而Magnitude是否使用则取决于MMC的具体实现，开发者可以自定义MMC</p>
+<p>如果不使用MMC，则默认使用Magnitude作为返回的数值</p>
+<p>一个GameplayEffect可以有多个Modifier，其执行顺序是按照其添加顺序</p>
+<h3 id="Level"><a href="#Level" class="headerlink" title="Level"></a>Level</h3><p>Level属性用于放大效果，需要手动调用，手动编写相关逻辑</p>
+<p>在EX-GAS源码内部，Level并没有被调用，仅仅只有对外暴露的Setter和Getter，而在Gasify的源码中可以发现其预设的MMC中是存在调用GameplayEffect的Level的，意味着我们可以在自定义的MMC通过调用GE的level来动态变更MMC的计算值</p>
+<p><img src="/2024/12/05/Unity%E6%8A%80%E8%83%BD%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1%E7%90%86%E8%A7%A3/image-10.png"></p>
+<h2 id="GameplayAbility"><a href="#GameplayAbility" class="headerlink" title="GameplayAbility"></a>GameplayAbility</h2><p>GameplayAbility是AbilitySystemComponent可以触发的一起行为和技能，通常由程序编写其对应的逻辑，Ability的业务逻辑取决于游戏类型和玩法</p>
+<blockquote>
+<p>引用至EX-GAS的文档：Ability的具体实现需要策划和程序配合。 这并不是废话，而是在EX-GAS的Ability制作流程中，确确实实的把策划和程序的工作分开了：</p>
+<ul>
+<li><p>策划的工作：配置AbilityAsset</p>
+</li>
+<li><p>程序的工作：编写Ability（AbilityAsset,Ability,AbilitySpec）类</p>
+</li>
+</ul>
+</blockquote>
+<h2 id="GameplayCue"><a href="#GameplayCue" class="headerlink" title="GameplayCue"></a>GameplayCue</h2><p>GameplayCue是一个用于播放游戏提示的类，它的作用是在游戏运行时播放游戏效果，比如播放一个特效、播放一个音效等，与GameplayAbility类似， Cue也是需要程序开发人员大量实现的，毕竟游戏不同导致游戏提示千变万化。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a target="_blank" rel="noopener" href="https://github.com/No78Vino/gameplay-ability-system-for-unity/tree/EX-GAS-1.0?tab=readme-ov-file">GitHub - No78Vino&#x2F;gameplay-ability-system-for-unity: Gameplay-Ability-System For Unity</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/BillEliot/GASDocumentation_Chinese?tab=readme-ov-file#concepts-gt">GitHub - BillEliot&#x2F;GASDocumentation_Chinese</a></p>
+<p><a target="_blank" rel="noopener" href="https://feliperoddd.gitbook.io/gasify">feliperoddd.gitbook.io</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/sjai013/unity-gameplay-ability-system/wiki">sjai013&#x2F;unity-gameplay-ability-system</a></p>
+
+    </div>
+
+    
+    <div class="about">
+        <h1>About this Post</h1>
+        <div class="details">
+            <p>This post is written by Yuan, licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc/4.0">CC BY-NC 4.0</a>.</p>
+        </div>
+        
+        <p class="tags">
+            
+            <i class="icon"></i>
+            <a href="/tags/Unity/" class="tag">#Unity</a>
+        </p>
+        
+    </div>
+    
+
+    <div class="container post-prev-next">
+        
+        <a href="/2025/02/06/%E5%AE%9E%E7%8E%B0%E6%8A%80%E8%83%BD%E7%B3%BB%E7%BB%9F%E7%9A%84%E5%8A%A8%E6%80%81%E4%BC%A4%E5%AE%B3%E8%AE%A1%E7%AE%97/" class="next">
+            <div>
+                <div class="text">
+                    <p class="label">Next</p>
+                    <h3 class="title">实现技能系统的动态伤害计算</h3>
+                </div>
+            </div>
+        </a>
+        
+        
+        <a href="/2023/11/09/2023-11-9-%E6%B5%85%E6%9E%90A%E6%98%9F%E5%AF%BB%E8%B7%AF%E7%AE%97%E6%B3%95%E4%B8%8EUnity%E5%AE%9E%E7%8E%B0/" class="prev">
+            <div>
+                <div class="text">
+                    <p class="label">Previous</p>
+                    <h3 class="title">浅析A星寻路算法与Unity实现</>
+                </div>
+            </div>
+        </a>
+        
+    </div>
+
+    
+        
+        
+    
+</article>
+
+        <footer>
+    <div class="inner">
+        <div class="links">
+            
+            <div class="group">
+                <h2 class="title">Blog</h2>
+                
+                <a href="/" class="item">Blog</a>
+                
+                <a href="/archives" class="item">Archives</a>
+                
+                <a href="/tags" class="item">Tags</a>
+                
+                <a href="/categories" class="item">Categories</a>
+                
+                <a href="/search" class="item">Search</a>
+                
+                <a href="/friends" class="item">Friends</a>
+                
+                <a href="/projects" class="item">Projects</a>
+                
+                <a href="/resume" class="item">Resume</a>
+                
+                <a href="/about" class="item">About</a>
+                
+            </div>
+            
+            <div class="group">
+                <h2 class="title">Projects</h2>
+                
+            </div>
+            
+            <div class="group">
+                <h2 class="title">Me</h2>
+                
+                <a target="_blank" rel="noopener" href="https://github.com/Yuan-Zzzz" class="item">GitHub</a>
+                
+                <a href="1729726526@qq.com" class="item">Email</a>
+                
+            </div>
+            
+        </div>
+        <span>&copy; 2025 Yuan<br>Powered by <a href="http://hexo.io/" target="_blank">Hexo</a> </span>
+        
+        
+            <br>
+            <div class="color-scheme-toggle" role="radiogroup" id="theme-color-scheme-toggle">
+                <label>
+                    <input type="radio" value="light">
+                    <span>Light</span>
+                </label>
+                <label>
+                    <input type="radio" value="dark">
+                    <span>Dark</span>
+                </label>
+                <label>
+                    <input type="radio" value="auto">
+                    <span>Auto</span>
+                </label>
+            </div>
+        
+    </div>
+</footer>
+
+
+        
+<script src="/js/main.js"></script>
+
+        
+        
+        
+
+        
+        <script src="https://unpkg.com/scrollreveal"></script>
+        <script>
+            window.addEventListener('load', () => {
+                ScrollReveal({ delay: 250, reset: true, easing: 'cubic-bezier(0, 0, 0, 1)' })
+                ScrollReveal().reveal('.post-list-item .cover-img img')
+                ScrollReveal().reveal('.post-list-item, .card, .content p img, .content .block-large img', { distance: '60px', origin: 'bottom', duration: 800 })
+            })
+        </script>
+        
+    </body>
+</html>
